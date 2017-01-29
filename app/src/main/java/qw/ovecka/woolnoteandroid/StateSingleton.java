@@ -410,12 +410,12 @@ class StateSingleton {
                             cert_hash = "error while reading https cert hash";
                         }
                         cert_hash = Util.SimpleSanitizeShellString(cert_hash);
-                        cert_hash = cert_hash.replaceAll("=", " = ").replaceAll(":", " ").replaceAll("_", "");
+                        cert_hash = cert_hash.replaceAll("=", " = ").replaceAll(":", " ");
 
                         String path_save_db = "/sdcard/woolnote";
                         String path_save_db_backup = "/sdcard/woolnote/backups";
-                        String login_password = Util.SimpleSanitizeShellString(GetLoginPassword()).replaceAll("_", "");
-                        String import_export_path = Util.SimpleSanitizeShellString(GetPrefImportExportDir()).replaceAll("_", "");
+                        String login_password = Util.SimpleSanitizeShellString(GetLoginPassword());
+                        String import_export_path = Util.SimpleSanitizeShellString(GetPrefImportExportDir());
 
 
                         // without $HOME, python fails - https://bugs.python.org/issue10496

@@ -40,7 +40,7 @@ final class Util {
     // the result has to be used inside "" or '' in order to be safe
     // if you need to properly escape, you need a different function than this one
     protected static String SimpleSanitizeShellString(String tainted) {
-        return tainted.replaceAll("'", "_").replaceAll("\"", "_").replaceAll("&", "_").replaceAll("$", "_").replaceAll("!", "_");
+        return tainted.replaceAll("'", "").replaceAll("\"", "").replaceAll("&", "").replaceAll("$", "").replaceAll("!", "");
     }
 
     protected static String GenerateSecureRandomString() {
