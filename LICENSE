@@ -32,3 +32,92 @@ CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
 SOFTWARE.
+
+
+
+License Notices For Incorporated Pieces Of Code
+===============================================
+
+AssetExtractor
+--------------
+The source code is incorporated in the license notice so that the code is forcibly redistributed under the same conditions as originally published.
+
+/**
+ * The AssetExtractor class contains three methods created by https://stackoverflow.com/users/2256270/matreshkin.
+ * license - cc by-sa 3.0
+ * source - http://stackoverflow.com/a/16984117
+ * retrieved on 2017-01-29 15:07
+ */
+
+final class AssetExtractor {
+
+    // license - cc by-sa 3.0
+    // source - http://stackoverflow.com/a/16984117
+    protected static boolean copyAssetFolder(AssetManager assetManager,
+                                           String fromAssetPath, String toPath) {
+        try {
+            String[] files = assetManager.list(fromAssetPath);
+            new File(toPath).mkdirs();
+            boolean res = true;
+            for (String file : files)
+                if (file.contains("."))
+                    res &= copyAsset(assetManager,
+                            fromAssetPath + "/" + file,
+                            toPath + "/" + file);
+                else
+                    res &= copyAssetFolder(assetManager,
+                            fromAssetPath + "/" + file,
+                            toPath + "/" + file);
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // license - cc by-sa 3.0
+    // source - http://stackoverflow.com/a/16984117
+    private static boolean copyAsset(AssetManager assetManager,
+                                     String fromAssetPath, String toPath) {
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = assetManager.open(fromAssetPath);
+            new File(toPath).createNewFile();
+            out = new FileOutputStream(toPath);
+            copyFile(in, out);
+            in.close();
+            in = null;
+            out.flush();
+            out.close();
+            out = null;
+            return true;
+        } catch(Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // license - cc by-sa 3.0
+    // source - http://stackoverflow.com/a/16984117
+    private static void copyFile(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while((read = in.read(buffer)) != -1){
+            out.write(buffer, 0, read);
+        }
+    }
+}
+
+
+
+FileChooser
+-----------
+
+The FileChooser and DirChooser classes contain code released into the Public Domain.
+From https://rogerkeays.com/simple-android-file-chooser retrieved 2017-01-29 14:33 CET.
+Original author: Roger Keays, published 3 June 2015
+"Here is the FileChooser class which you can cut and paste into your project. Public domain code so do what you want with it. Peace."
+
+
+

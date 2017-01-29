@@ -1,0 +1,3 @@
+actually, the x86 binaries are x86_64 but because the min/targeted api level is too low, x86_64 gets ignored. I didn't compile 32bit binaries, so the 64bit binaries are in x86 and it is necessary to:
+1) run it in x86_64 emulator
+2) remove the x86 directory before building a release version so that 32bit x86 devices with libhoudini correctly use the arm binaries instead of failing to use the 64bit x86 binaries
