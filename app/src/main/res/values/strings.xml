@@ -1,13 +1,48 @@
 <resources>
-    <string name="app_name">WoolnoteAndroid</string>
+    <string name="app_name">Woolnote for Android</string>
     <string name="action_settings">Settings</string>
+    <string name="action_back">Back</string>
+    <string name="action_forward">Forward</string>
+    <string name="action_refresh">Refresh WebView</string>
+    <string name="action_restart_server">Restart server</string>
+    <string name="action_quit">Quit</string>
+    <string name="action_license">Licensing info</string>
+    <string name="action_readme">README</string>
+    <string name="action_gen_cert">New https:// cert</string>
+    <string name="action_display_ip_address">Display IP address</string>
+    <string name="main_url_without_protocol">127.0.0.1:8088/woolnote?woolauth=sleepysheep</string>
+    <string name="main_url_without_protocol_without_passwd">127.0.0.1:8088/woolnote?woolauth=</string>
+    <string name="main_url_only_host_without_protocol">127.0.0.1</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
-
-    <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 
+    <string name="pref_default_login_password"></string>
+    <string name="pref_name_login_password">pref_login_password</string>
+    <string name="pref_title_login_password">Login password</string>
+    <string name="pref_description_login_password">The login password used to log in through the /woolnote?woolauth=LOGINPASSWORD web address. Leave blank to generate a random login password each startup (default). Some special characters are ignored (&lt;&amp;?$\"\'!_ and space).</string>
+
+    <string name="pref_name_kill_server_activity_destroy">pref_kill_server_activity_destroy</string>
+    <string name="pref_title_kill_server_activity_destroy">Kill server on activity destroy</string>
+    <string name="pref_description_kill_server_activity_destroy">Enabled (default) == the Woolnote server is shut down when activity is destroyed (closed by user or by Android). Disabled == left running whenever possible. Some devices are buggy and the option has no effect.</string>
+
+    <string name="pref_header_import_export">Import &amp; export</string>
+
+    <string name="pref_import_export_dropbox_sync_dir_default_in_settings_ui">/storage/emulated/0/Android/data/com.dropbox.android/files/u20358332/scratch/Dokumenty/docs_sync/dropbox2/woolnote/data/sync/</string>
+    <string name="pref_import_export_dropbox_sync_dir_default_for_first_use">/sdcard/woolnote</string>
+    <string name="pref_name_import_export_dropbox_sync_dir">pref_import_export_dropbox_sync_dir</string>
+    <string name="pref_title_import_export_dropbox_sync_dir">Sync dir for import&amp;export</string>
+    <string name="pref_description_import_export_dropbox_sync_dir">Directory where woolnote.zip is saved on export and read on import. If you don\'t want to use the feature, set the directory to /sdcard/woolnote. Can be used with e.g. Dropbox (see default value for example). You have to quit the app for the changes to take effect.</string>
+
+    <string name="pref_key_import_export_dropbox_sync_dir_picker">pref_key_import_export_dropbox_sync_dir_picker</string>
+    <string name="pref_title_import_export_dropbox_sync_dir_picker">Use a picker to choose the sync dir for import&amp;export</string>
+    <string name="pref_description_import_export_dropbox_sync_dir_picker">Use a directory picker to choose the directory where woolnote.zip is saved on export and read on import.</string>
+
+
+    <!-- Example General settings -->
+
+<!--
     <string name="pref_title_social_recommendations">Enable social recommendations</string>
     <string name="pref_description_social_recommendations">Recommendations for people to contact
         based on your message history
@@ -28,7 +63,7 @@
         <item>-1</item>
     </string-array>
 
-    <!-- Example settings for Data & Sync -->
+    &lt;!&ndash; Example settings for Data & Sync &ndash;&gt;
     <string name="pref_header_data_sync">Data &amp; sync</string>
 
     <string name="pref_title_sync_frequency">Sync frequency</string>
@@ -65,7 +100,7 @@
 
     <string name="pref_title_system_sync_settings">System sync settings</string>
 
-    <!-- Example settings for Notifications -->
+    &lt;!&ndash; Example settings for Notifications &ndash;&gt;
     <string name="pref_header_notifications">Notifications</string>
 
     <string name="pref_title_new_message_notifications">New message notifications</string>
@@ -74,4 +109,6 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    -->
+
 </resources>

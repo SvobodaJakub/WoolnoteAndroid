@@ -2,9 +2,46 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="qw.ovecka.woolnoteandroid.MainActivity">
+    <item android:id="@+id/action_back"
+        android:orderInCategory="80"
+        android:title="@string/action_back"
+        app:showAsAction="always"/>
+    <item android:id="@+id/action_forward"
+        android:orderInCategory="90"
+        android:title="@string/action_forward"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_refresh"
+        android:orderInCategory="100"
+        android:title="@string/action_refresh"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_restart_server"
+        android:orderInCategory="101"
+        android:title="@string/action_restart_server"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_quit"
+        android:orderInCategory="102"
+        android:title="@string/action_quit"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="110"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_gen_cert"
+        android:orderInCategory="120"
+        android:title="@string/action_gen_cert"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_license"
+        android:orderInCategory="130"
+        android:title="@string/action_license"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_readme"
+        android:orderInCategory="140"
+        android:title="@string/action_readme"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_display_ip_address"
+        android:orderInCategory="150"
+        android:title="@string/action_display_ip_address"
+        app:showAsAction="never"/>
 </menu>

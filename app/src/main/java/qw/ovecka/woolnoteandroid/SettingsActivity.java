@@ -2,14 +2,17 @@ package qw.ovecka.woolnoteandroid;
 
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -18,9 +21,11 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -61,7 +66,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 // using RingtoneManager.
                 if (TextUtils.isEmpty(stringValue)) {
                     // Empty values correspond to 'silent' (no ringtone).
-                    preference.setSummary(R.string.pref_ringtone_silent);
+                    //preference.setSummary(R.string.pref_ringtone_silent);
 
                 } else {
                     Ringtone ringtone = RingtoneManager.getRingtone(
@@ -190,8 +195,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
+            //bindPreferenceSummaryToValue(findPreference("example_text"));
+            //bindPreferenceSummaryToValue(findPreference("example_list"));
         }
 
         @Override
@@ -251,7 +256,29 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+            //bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+
+
+            final Activity thisActivity = getActivity();
+            Preference myPref = findPreference(getString(R.string.pref_key_import_export_dropbox_sync_dir_picker));
+            myPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference pref) {
+                    new DirChooser(thisActivity).setFileListener(new DirChooser.FileSelectedListener() {
+                                                                     @Override
+                                                                     public void fileSelected(final File file) {
+                                                                         Log.d("WOOLNOTE", "selected: " + file.getAbsolutePath());
+                                                                         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(thisActivity);
+                                                                         SharedPreferences.Editor editor = sharedPref.edit();
+                                                                         editor.putString(getString(R.string.pref_name_import_export_dropbox_sync_dir), file.getAbsolutePath());
+                                                                         editor.commit();
+                                                                         EditTextPreference editPref = (EditTextPreference) findPreference(getString(R.string.pref_name_import_export_dropbox_sync_dir));
+                                                                         editPref.setText(file.getAbsolutePath());
+                                                                     }
+                                                                 }
+                    ).showDialog();
+                    return true;
+                }
+            });
         }
 
         @Override

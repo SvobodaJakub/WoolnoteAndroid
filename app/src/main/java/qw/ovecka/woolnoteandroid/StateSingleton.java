@@ -74,6 +74,7 @@ class StateSingleton {
     // beware of shell escaping
     // runs in the current thread and blocks
     // TODO even though I consume stdin/stderr, Thread.interrupt() doesn't work - despite this link telling otherwise? - https://stackoverflow.com/questions/18113941/thread-launched-running-processes-wont-destroy-java
+    // - Most probably, it is this problem and I can't fix it - https://stackoverflow.com/questions/21279270/android-can-native-code-get-broadcast-intent-from-android-system/21337119#answer-21337119
     protected String processExec(String shellCommand, Boolean logEnabled, Boolean throwAwayInOut) {
 
         int sleepInterval = 100; // 100 ms
@@ -149,7 +150,7 @@ class StateSingleton {
                     }
                 }
                 if (logEnabled) Log.d("WOOLNOTE", "waitFor ended on its own");
-            } catch(InterruptedException e){
+            } catch (InterruptedException e) {
                 if (logEnabled) Log.d("WOOLNOTE", "thread interrupted, killing");
                 process.destroy(); // after waitFor if thread interrupted
                 if (logEnabled) Log.d("WOOLNOTE", "process.destroy() returned");
@@ -182,7 +183,6 @@ class StateSingleton {
     }
 
     // runs in the current thread and blocks
-    // TODO even though I consume stdin/stderr, Thread.interrupt() doesn't work - despite this link telling otherwise? - https://stackoverflow.com/questions/18113941/thread-launched-running-processes-wont-destroy-java
     //TODO doesn't work for some reason
     protected void processExec(String[] cmdArray, String[] envp, File dir, Boolean logEnabled, Boolean throwAwayInOut) {
 
@@ -192,7 +192,8 @@ class StateSingleton {
         if (logEnabled) Log.d("WOOLNOTE", "processExec2 begin - " + Arrays.toString(cmdArray));
         if (logEnabled) Log.d("WOOLNOTE", "processExec2 envp - " + Arrays.toString(envp));
         if (logEnabled) Log.d("WOOLNOTE", "processExec2 dir - " + dir.getAbsolutePath());
-        if (logEnabled) Log.d("WOOLNOTE", "processExec2 dir exists - " + Boolean.toString(dir.exists()));
+        if (logEnabled)
+            Log.d("WOOLNOTE", "processExec2 dir exists - " + Boolean.toString(dir.exists()));
         ProcessBuilder pb = new ProcessBuilder(cmdArray);
         Map<String, String> env = pb.environment();
         for (String envPairStr : envp) {
@@ -273,7 +274,7 @@ class StateSingleton {
                     }
                 }
                 if (logEnabled) Log.d("WOOLNOTE", "waitFor ended on its own");
-            } catch(InterruptedException e){
+            } catch (InterruptedException e) {
                 if (logEnabled) Log.d("WOOLNOTE", "thread interrupted, killing");
                 process.destroy(); // after waitFor if thread interrupted
                 if (logEnabled) Log.d("WOOLNOTE", "process.destroy() returned");
@@ -386,7 +387,7 @@ class StateSingleton {
             if (nativeGetServerRunning()) {
                 return;
             }
-            //pythonHelloWorldSmokeTest();
+
             this.nativeProcessThread = new Thread(new Runnable() {
                 public void run() {
                     try {
@@ -413,23 +414,12 @@ class StateSingleton {
 
                         String path_save_db = "/sdcard/woolnote";
                         String path_save_db_backup = "/sdcard/woolnote/backups";
-                        //String path_dropbox_sync = "/sdcard/woolnote"; // TODO - make this user-configurable
                         String login_password = Util.SimpleSanitizeShellString(GetLoginPassword()).replaceAll("_", "");
                         String import_export_path = Util.SimpleSanitizeShellString(GetPrefImportExportDir()).replaceAll("_", "");
 
 
                         // without $HOME, python fails - https://bugs.python.org/issue10496
 
-                        /*String commandToRunPython = String.format("trap 'kill -TERM $PID ; kill -KILL $PID' TERM; cd '%s' && LANG=C.utf-8 HOME='%s' PYTHONIOENCODING=utf-8 PYTHONUTF8=1 PYTHONHOME='%s' '%s' -B '%s' > /dev/null 2>&1 & PID=$! ; echo $PID ; wait $PID",
-                                woolnote_dir_path,
-                                pythonhome_path,
-                                pythonhome_path,
-                                python_path,
-                                woolnote_main_path);
-                          processExec(commandToRunPython, Constants.DebugLogcat, false);
-                          */
-
-                        ;
                         String woolnoteHardcodedEnvVar = String.format(" WOOLNOTE_HARDCODE_SSL_CERT_HASH='%s' WOOLNOTE_HARDCODE_PATH_CERT='%s' WOOLNOTE_HARDCODE_PATH_SAVE_DB='%s' WOOLNOTE_HARDCODE_PATH_SAVE_DB_BACKUP='%s' WOOLNOTE_HARDCODE_LOGIN_PASSWORD='%s' WOOLNOTE_HARDCODE_PATH_DROPBOX_SYNC='%s' ",
                                 cert_hash,
                                 cert_dir_path,
@@ -449,17 +439,6 @@ class StateSingleton {
                         // note: if debug logging is enabled, snooping logcat reveals the login password
                         processExec(commandToRunPython, Constants.DebugLogcat, false);
 
-
-/*                        String[] cmdArray = new String[]{python_path, "-B", woolnote_main_path};
-                        String[] envp = new String[]{
-                                "LANG=C.utf-8",
-                                String.format("HOME='%s'", pythonhome_path),
-                                "PYTHONIOENCODING=utf-8",
-                                "PYTHONUTF8=1",
-                                String.format("PYTHONHOME='%s'", pythonhome_path)};
-                        File startCurrentDir = new File(woolnote_dir_path);
-                        processExec(cmdArray, envp, startCurrentDir, Constants.DebugLogcat, false);*/
-
                     } catch (Throwable e) {
                         //if (logEnabled) e.printStackTrace();
 
@@ -471,11 +450,7 @@ class StateSingleton {
             });
 
             try {
-                //TODO sleep
-                //Thread.sleep(1000); // give any remaining processes that are being killed a little time
                 this.nativeProcessThread.start();
-                // TODO sleep
-                //Thread.sleep(2000); // wait a bit after starting - 1000 ms before the thread starts doing sth, another 1000 to wait a bit for python to start (FTR, it usually takes longer than that, not waiting for complete startup here)
             } catch (Throwable e) {
                 //e.printStackTrace();
             }
@@ -592,7 +567,7 @@ class StateSingleton {
             }
 
             if (GetPrefKillServer()) {
-                nativeKillProcess(); // on Android 4.4 (and possibly others), the process might be still running because the OS can't Force Stop the native process
+                nativeKillProcess(); // on Android 4.4 (and possibly others), the process might be still running because the OS can't Force Stop the native process, hence this killing
             }
 
             if (GetPrefLoginPassword().length() > 0) {
@@ -607,7 +582,6 @@ class StateSingleton {
                         GetFilesDirPath());
                 processExec(commandToCleanFiles, Constants.DebugLogcat, false);
 
-                // TODO: delete the FilesDir before extracting to ensure that the original intended state is preserved
                 AssetExtractor.copyAssetFolder(GetAssetManager(), "files", GetFilesDirPath() + "/assets");
 
                 createSdcardFilesIfNotExisting();
@@ -626,13 +600,6 @@ class StateSingleton {
             } else {
                 Log.d("WOOLNOTE", "nativeGetServerRunning==true");
             }
-
-            /*// TODO: something better than this
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }*/
 
             this.startupOnceHappened = true;
         }
