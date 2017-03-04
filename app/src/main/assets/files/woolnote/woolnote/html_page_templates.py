@@ -1,19 +1,18 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+# TODO: docstring for the file
 import urllib
 import hashlib
+import os
 
-# TODO unify template names
-# TODO: strictly divide presentation and logic
-# TODO: split into two files, one of them only deals with presentation (and maybe doesn't use util?) and doesnt use my own data types
 
 from woolnote import util
 from woolnote import html_constants
 from woolnote.task_store import PLAIN, MARKUP
 from woolnote import html_page_templates_pres
 from collections import namedtuple
-
-# TODO: dumb templates vs smart templates
-# - dumb templates are independent of everything in woolnote, just get plain data and assemble them into HTML
-# - smart templates get woolnote data and break them down into plain data for the dumb templates
+from woolnote import config
 
 
 
@@ -21,28 +20,28 @@ def folder_tag_etc_list(action_name, req_elem_name, elem_list=None, elem_dict=No
                                       sorted_tuple_list=None, small_text=False, alt_task_store_name=None,
                                       red_bold_text=False):
     # TODO docstring update
-    """
-    Generates a list of links to actions based on a list of elements leading to these actions.
-    If a dictionary instead of a list is supplied, the generated requests contain the values of the keys
-    while the user-visible strings in the links are the dictionary keys.
-    If both elem_list and elem_dict are provided, the elem_list is iterated over (instead of elem_dict.keys()),
-    so that it is possible to define the order.
-    If sorted_tuple_list is provided, elem_list, elem_dict, and sort_elem_list are ignored.
-
-    Args:
-        action_name (str): value for the "action" request key
-        req_elem_name (str): the key name for the request (value is the individual element)
-        elem_list (Union[List[str], None]): list of elements (tag names, folder names, ...) for which to generate links
-        elem_dict (Union[None, Dict[str, str]]): dict where keys are the names of elements to display in the links (tag names, ...) and values are the requests to use in the link address
-        sort_elem_list (bool): whether to sort the user-visible elements (tags, folders, ...)
-        sorted_tuple_list (Union[None, List[Tuple[str, str]]]): sorted tuples (display_elem_name, request_value) for the individual elements
-        small_text (bool): whether to display the user-visible links as small text
-        alt_task_store_name (Union[None, str]): if not None, it is added to the links so that the links point to the right task store
-        red_bold_text (bool): If True, the text is bold and red
-
-    Returns:
-        str: snippet of HTML links
-    """
+    # """
+    # Generates a list of links to actions based on a list of elements leading to these actions.
+    # If a dictionary instead of a list is supplied, the generated requests contain the values of the keys
+    # while the user-visible strings in the links are the dictionary keys.
+    # If both elem_list and elem_dict are provided, the elem_list is iterated over (instead of elem_dict.keys()),
+    # so that it is possible to define the order.
+    # If sorted_tuple_list is provided, elem_list, elem_dict, and sort_elem_list are ignored.
+    #
+    # Args:
+    #     action_name (str): value for the "action" request key
+    #     req_elem_name (str): the key name for the request (value is the individual element)
+    #     elem_list (Union[List[str], None]): list of elements (tag names, folder names, ...) for which to generate links
+    #     elem_dict (Union[None, Dict[str, str]]): dict where keys are the names of elements to display in the links (tag names, ...) and values are the requests to use in the link address
+    #     sort_elem_list (bool): whether to sort the user-visible elements (tags, folders, ...)
+    #     sorted_tuple_list (Union[None, List[Tuple[str, str]]]): sorted tuples (display_elem_name, request_value) for the individual elements
+    #     small_text (bool): whether to display the user-visible links as small text
+    #     alt_task_store_name (Union[None, str]): if not None, it is added to the links so that the links point to the right task store
+    #     red_bold_text (bool): If True, the text is bold and red
+    #
+    # Returns:
+    #     str: snippet of HTML links
+    # """
     ss = util.sanitize_singleline_string_for_html
     elem_list_data_for_html_fragment_list = []
 
@@ -137,8 +136,8 @@ def generate_note_reminder_link_list_html_fragment(list_taskid, used_task_store,
 
 
 
-def edit_note_page_template(task_store, task, self_sess_action_auth,
-                            editing_mode_existing_note=False, history_back_id=None, page_header_warning=None):
+def page_edit_note_template(task_store, task, self_sess_action_auth,
+                            editing_mode_existing_note=False, history_back_id=None, page_header_list_of_warnings=None):
     # TODO: docstring
     """Template for note editing - for creating a new note or editing an existing one.
        editing_mode_existing_note - False = editing mode for a new note, True = editing mode for an existing note
@@ -161,13 +160,13 @@ def edit_note_page_template(task_store, task, self_sess_action_auth,
     page.task_due_date = task.due_date
     page.sess_action_auth = self_sess_action_auth
     page.history_back_id = history_back_id
-    page.page_header_warning = page_header_warning
+    page.page_header_list_of_warnings = page_header_list_of_warnings
 
     page_html = page.to_html()
     return page_html
 
 
-def template_page_list_notes(list_taskid_desc, title=None, primary_task_store=None,
+def page_list_notes_template(list_taskid_desc, title=None, primary_task_store=None,
                              alt_task_store=None, alt_task_store_name=None, highlight_in_notes=None,
                              history_back_id=None, virtual_folders=None,
                              page_header_first_text=None,
@@ -382,6 +381,7 @@ def page_export_prompt_template(nonce, history_back_id=None, self_sess_action_au
     page.nonce = nonce
     page.history_back_id = history_back_id
     page.self_sess_action_auth = self_sess_action_auth
+    page.export_path = str(os.path.join(config.PATH_SAVE_DROPBOX_EXPORT, config.FILE_WOOLNOTE_ZIP))
     return page.to_html()
 
 def page_import_prompt_template(nonce, history_back_id=None, self_sess_action_auth=None):
@@ -391,6 +391,7 @@ def page_import_prompt_template(nonce, history_back_id=None, self_sess_action_au
     page.nonce = nonce
     page.history_back_id = history_back_id
     page.self_sess_action_auth = self_sess_action_auth
+    page.import_path = str(os.path.join(config.PATH_LOAD_DROPBOX_IMPORT, config.FILE_WOOLNOTE_ZIP))
     return page.to_html()
 
 

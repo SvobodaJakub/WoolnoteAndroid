@@ -1,3 +1,7 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+# TODO: docstring for the file
 import os
 
 # environment variables
@@ -34,6 +38,9 @@ DEFAULT_TASKNAME = "Unnamed"
 LOGIN_PASSWORD = "please_change_me"
 if __hardcode_login_password:
     LOGIN_PASSWORD = __hardcode_login_password
+
+HTTP_PORT = 8088
+HTTPS_PORT = 8089
 
 # constants for filenames
 #########################
@@ -105,8 +112,8 @@ if PATH_SAVE_DB_BACKUP is None:
 # The first available path is selected - allows autodetection between multiple environments (pc, phone).
 # If none is available, an empty path is used (depends on the environment what it actually resolves to).
 _PATHS_SAVE_DROPBOX_EXPORT = [
-    "/storage/emulated/0/Android/data/com.dropbox.android/files/u20358332/scratch/Dokumenty/docs_sync/dropbox2/woolnote/data/sync/",
-    "/sdcard/woolnote/",  #< TODO - should this be here?
+    "/storage/emulated/0/Android/data/com.dropbox.android/files/u20358332/scratch/Dokumenty/docs_sync/dropbox2/woolnote/data/sync/",  # example
+    "/sdcard/woolnote/",
     "../data/sync/"]
 PATH_SAVE_DROPBOX_EXPORT = ""  # woolnote.dat
 PATH_LOAD_DROPBOX_IMPORT = ""  # woolnote.dat

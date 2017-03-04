@@ -1,3 +1,7 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+# TODO: docstring for the file
 import random
 import html
 import time
@@ -26,6 +30,7 @@ class Search_AST_Node:
 
     def __init__(self):
         # TODO: docstring
+        super().__init__()
         self.children = []
         self.parent = None
         self.type = None
@@ -357,6 +362,7 @@ def generate_one_time_pwd():
 
 def sanitize_singleline_string_for_tasksave(unsafe):
     # TODO: docstring
+    # TODO: can this be broken by other unicode newline characters?
     new = unsafe.replace("\n", "")
     new = new.replace("\r", "")
     new = new.strip()
@@ -618,10 +624,10 @@ def convert_multiline_markup_string_into_safe_html(unsafe):
 def multiline_markup_checkbox_mapping(markup, plain, edit_chkbox_state=False, chkbox_on_list=None,
                                       disabled_checkboxes=False):
     # TODO: docstring
-    """markup - the html-converted sanitized markup text
-       plain - the plaintext source of the markup text
-       edit_chkbox_state - if false, it returns html with html checkboxes, if true, it takes chkbox_on_list and makes those checked and the rest unchecked and returns the modified plain text
-    """
+    # """markup - the html-converted sanitized markup text
+    #    plain - the plaintext source of the markup text
+    #    edit_chkbox_state - if false, it returns html with html checkboxes, if true, it takes chkbox_on_list and makes those checked and the rest unchecked and returns the modified plain text
+    # """
     # TODO: better docstring
     if chkbox_on_list is None:
         chkbox_on_list = []

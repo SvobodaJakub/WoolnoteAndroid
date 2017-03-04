@@ -1,3 +1,7 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+# TODO: docstring for the file
 import urllib
 from http.server import BaseHTTPRequestHandler
 import sys
@@ -55,9 +59,7 @@ def get_WebInterfaceHandlerLocal(message, list_of_messages):
 
         def do_POST(self):
             # TODO: docstring
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html")
-            self.end_headers()
+            self.do_HEAD()
             self.req_handler()
 
         def do_HEAD(self):
@@ -101,8 +103,8 @@ def serve_error_message_forever():
         util.dbgprint("trying serve_forever")
         server.serve_forever()
 
-    server_http = get_server_on_port(8088, False)
-    server_https = get_server_on_port(8089, True)
+    server_http = get_server_on_port(config.HTTP_PORT, False)
+    server_https = get_server_on_port(config.HTTPS_PORT, True)
 
 
     def serve_forever(*servers):

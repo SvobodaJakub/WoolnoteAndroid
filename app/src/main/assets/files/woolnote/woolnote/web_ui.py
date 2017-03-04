@@ -1,3 +1,7 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+# TODO: docstring for the file
 # TODO: think about moving functionality to backend
 
 import urllib
@@ -6,7 +10,6 @@ import hashlib
 
 from woolnote import util
 from woolnote import config
-from woolnote.html_page_templates import edit_note_page_template, template_page_list_notes # TODO fix this
 from woolnote import html_page_templates
 from woolnote import html_constants
 from woolnote.task_store import Task, TaskStore, PLAIN, MARKUP
@@ -17,7 +20,24 @@ from woolnote.task_store import Task, TaskStore, PLAIN, MARKUP
 
 class WebUI():
     def __init__(self, task_store, task_store_trash, ui_backend, woolnote_config, ui_auth):
-        # TODO: docstring
+        """
+        Web UI that uses the specified ui_backend (which performs most data manipulation), the specified task stores
+        for storing the data, the specified ui_auth for performing authentication actions, and the specified
+        woolnote_config holding configuration for the whole program.
+        The web ui is to be used by a server that correctly sets the properties self.last_request_post_data_dict,
+        self.last_request_get_dict using the method set_last_request() before calling a method of the web ui. The server
+        can also use the method get_last_get_request_from_history_id() to retrieve an older set of get request data to
+        inject them back into set_last_request() and effectively go back in history (the server has to pay attention
+        from which pages to which pages it is valid to go to and this is currently not documented).
+
+        Args:
+            task_store (woolnote.task_store.TaskStore):
+            task_store_trash (woolnote.task_store.TaskStore):
+            ui_backend (woolnote.ui_backend.UIBackend):
+            woolnote_config (woolnote.woolnote_config.WoolnoteConfig):
+            ui_auth (woolnote.ui_auth.WoolnoteUIAuth):
+        """
+        super().__init__()
 
         # history_back gets the proper history hash (history_id) so that it uses that instead
         self.last_request_post_data_dict = {}
@@ -40,22 +60,50 @@ class WebUI():
         self.ui_backend = ui_backend
         self.woolnote_config = woolnote_config
         self.ui_auth = ui_auth
-        super().__init__()
 
     def set_last_request(self, postdict, getdict):
-        # TODO docstring
-        # - to be used by the http request handler before calling any methods for a new request
+        """
+        To be used by the http request handler before calling any methods for a new request.
+
+        The web ui is to be used by a server that correctly sets the properties self.last_request_post_data_dict,
+        self.last_request_get_dict using the method set_last_request() before calling a method of the web ui.
+
+        Args:
+            postdict (Union[Dict, Dict[str, List[str]]]):
+            getdict (Dict[str, List[str]]):
+
+        Returns:
+            None:
+        """
         self.last_request_post_data_dict = postdict
         self.last_request_get_dict = getdict
 
-    def get_last_request_from_history_id(self, id):
-        # TODO docstring
+    def get_last_get_request_from_history_id(self, id):
+        """
+        To be used by the http request handler to go back in request history. Returns a dict of GET request keys and
+        values associated with the provided history ID. History ID is a hash of the request keys and values of interest.
+
+        Args:
+            id (str): History id where to go to.
+
+        Returns:
+            Dict: GET request keys and values associated with the history ID.
+
+        """
         # - to be used by the http request handler to go back in request history
         return self.last_history_dict_of_links[id].copy()
 
     def save_history(self, req_keys_to_save, alt_task_store_name=None):
-        # TODO docstring
-        # - to be used by the other methods in this class - the methods that display a listing of notes, so that notes can go back to the same listing
+        """
+        To be used by the other methods in this class - the methods that display a listing of notes, so that notes can go back to the same listing.
+
+        Args:
+            req_keys_to_save (Union[List[str], List]):
+            alt_task_store_name (Union[None, str]):
+
+        Returns:
+            str: history_id
+        """
         history_id = "main_list"  # fallback string
         _hd = self.last_request_get_dict
         _hk = req_keys_to_save
@@ -69,8 +117,12 @@ class WebUI():
         return history_id
 
     def helper_convert_msg_queue_list_to_list_for_output(self):
-        # TODO: docstring
-        # docstr: creates a new static list of warning collected so far, empties the list, does all that in a cooperative multitasking-safe way
+        """
+        Creates a new static list of warnings collected so far, empties the list, does all that in a cooperative multitasking-safe way.
+
+        Returns:
+            List[str]: List of warnings.
+        """
         result = []
         if self.error_msg_queue_list:
             # this order of reference shuffling ensures that a race condition doesn't result in lost messages
@@ -80,8 +132,12 @@ class WebUI():
         return result
 
     def helper_convert_msg_queue_note_to_list_for_output(self):
-        # TODO: docstring
-        # docstr: creates a new static list of warning collected so far, empties the list, does all that in a cooperative multitasking-safe way
+        """
+        Creates a new static list of warnings collected so far, empties the list, does all that in a cooperative multitasking-safe way.
+
+        Returns:
+            List[str]: List of warnings.
+        """
         result = []
         if self.error_msg_queue_note:
             # this order of reference shuffling ensures that a race condition doesn't result in lost messages
@@ -139,26 +195,46 @@ class WebUI():
             return True
 
     def helper_retrieve_last_request_get_dict_key_val_index_zero_or_return_none(self, key_name):
-        # TODO: docstring
-        # docstr: returns either the first GET value of the specified key or (if it doesnt exist) None
+        """
+        Returns either the first GET value of the specified key or (if it doesnt exist) None.
+
+        Args:
+            key_name (str): Key of the GET value.
+
+        Returns:
+            Union[str, None]: Either the first GET value of the specified key or (if it doesnt exist) None.
+        """
         try:
             return self.last_request_get_dict[key_name][0]
         except:
             return None
 
     def create_new_nonce(self):
-        # TODO docstring
-        """Creates a new nonce and sets how many tries are left (just one try). To be used for pages whose actions must not be repeated by reloading the page / resending the request."""
+        """
+        Creates a new nonce and sets how many tries are left (just one try). To be used for pages whose actions must not be repeated by reloading the page / resending the request.
+
+        Returns:
+            str: Nonce.
+        """
+
         self.nonce_action_auth = util.create_id_task()  # create a new random auth string
         self.nonce_action_auth_valid_uses = 1
         return self.nonce_action_auth
 
     def check_one_time_pwd(self, user_supplied_nonce):
-        # TODO docstring
-        x = """Checks whether the supplied nonce is correct, only if tries are left.
-            Nonce is disabled after 1st successful use.
-To be used for pages whose actions must not be repeated by reloading the page / resending the request.
+        # TODO rename?
         """
+        Checks whether the supplied nonce is correct, only if tries are left.
+        Nonce is disabled after 1st successful use.
+        To be used for pages whose actions must not be repeated by reloading the page / resending the request.
+
+        Args:
+            user_supplied_nonce (str): The potentially wrong or malicious nonce the user provided. Decreases the number of tries left.
+
+        Returns:
+            bool: Whether the user-supplied nonce is correct and allowed.
+        """
+
         if self.nonce_action_auth_valid_uses > 0:
             self.nonce_action_auth_valid_uses -= 1
             ret = util.safe_string_compare(user_supplied_nonce, self.nonce_action_auth)
@@ -168,68 +244,63 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         return False
 
     def helper_get_alt_task_store_name(self):
-        #TODO docstring
-        # docstr: returns alt_task_store_name if present in the get data or None if not present
+        """
+        Returns alt_task_store_name if present in the get data or None if not present.
+
+        Returns:
+            None: alt_task_store_name if present in the get data or None if not present.
+        """
         return self.helper_retrieve_last_request_get_dict_key_val_index_zero_or_return_none("alt_task_store_name")
 
     def req_display_otp(self):
         """
         Puts a new generated one-time password to the self.error_msg_queue_list so that it is displayed.
+
+        Returns:
+            None:
         """
 
         ret = self.ui_auth.create_new_one_time_pwd()
         if ret is not None:
             self.error_msg_queue_list.append(ret)
 
-    def helper_save_note(self, task):
-        # TODO: docstring
-        # TODO: somehow move validation to ui_backend?
-        # docstr: reads data for a new/saved note from POST data, performs sanitization, and correctly saves the data to a note (that also entails resetting the reminder flag if due date changes, correctly processing body text based on formatting used, setting the correct values for the formatting property)
+    def helper_save_task_itself_from_req(self, task):
+        """
+        Reads data for a new/saved note from POST data, performs sanitization, and correctly saves the data to a note
+        (that also entails resetting the reminder flag if due date changes, correctly processing body text based on
+        formatting used, setting the correct values for the formatting property)
+
+        Args:
+            task (woolnote.task_store.Task): Task into which POST data are saved.
+
+        Returns:
+            None:
+        """
         tainted_task_name = self.last_request_post_data_dict.get("taskname", [config.DEFAULT_TASKNAME])[0]
         tainted_task_folder = self.last_request_post_data_dict.get("taskfolder", [config.DEFAULT_FOLDER])[0]
         tainted_task_pubauthid = self.last_request_post_data_dict.get("taskpubauthid", [util.create_id_task()])[0]
         tainted_task_tags = self.last_request_post_data_dict.get("tasktags", [""])[0]
-        if tainted_task_tags.endswith(", "):
-            tainted_task_tags = tainted_task_tags[:-2]
         tainted_task_body = self.last_request_post_data_dict.get("taskbody", [""])[0]
         tainted_due_date = self.last_request_post_data_dict.get("duedate", [""])[0]
         tainted_formatting = self.last_request_post_data_dict.get("formatting", ["markup"])[0]
 
-        task.name = util.sanitize_singleline_string_for_tasksave(tainted_task_name)
-        task.folder = util.sanitize_singleline_string_for_tasksave(tainted_task_folder)
-        task.tags = {util.sanitize_singleline_string_for_tasksave(x) for x in tainted_task_tags.split(",")}
-
-        old_due_date = task.due_date
-        task.due_date = util.sanitize_singleline_string_for_tasksave(tainted_due_date)
-        if old_due_date != task.due_date:
-            # when due date changes, the note is again ready to display a red reminder
-            task.due_date_reminder_dismissed = False
-
-        task.public_share_auth = util.sanitize_singleline_string_for_tasksave(tainted_task_pubauthid)
-        # too short strings are inherently insecure
-        if len(task.public_share_auth) < 5:
-            task.public_share_auth = util.create_id_task()
-
-        if tainted_formatting == "markup":
-            task.body_format = MARKUP
-        elif tainted_formatting == "plaintext":
-            task.body_format = PLAIN
-        else:
-            # keeping unchanged, shouldn't happen
-            util.dbgprint("tainted_formatting had a nonstandard value {}".format(tainted_formatting))
-            pass
-
-        if task.body_format == MARKUP:
-            task.body = util.task_body_save_fix_multiline_markup_bullet_lists(tainted_task_body)
-        else:
-            task.body = util.task_body_save_fix_newlines(tainted_task_body)
+        self.ui_backend.helper_sanitize_task_before_save(task_to_be_updated=task,
+                                                         tainted_task_name=tainted_task_name,
+                                                         tainted_task_folder=tainted_task_folder,
+                                                         tainted_task_pubauthid=tainted_task_pubauthid,
+                                                         tainted_task_tags=tainted_task_tags,
+                                                         tainted_task_body=tainted_task_body,
+                                                         tainted_due_date=tainted_due_date,
+                                                         tainted_formatting=tainted_formatting)
 
     def req_save_new_note(self):
-        # TODO: docstring
         """
         Saves a new note from the GET and POST data.
-        Has a permanent effect - calls task_store.task_store_save()
+
+        Returns:
+            None:
         """
+
 
         if self.helper_action_get_request_is_wrong("req_save_new_note"):
             return
@@ -239,18 +310,18 @@ To be used for pages whose actions must not be repeated by reloading the page / 
 
         task = Task()
 
-        self.helper_save_note(task)
+        self.helper_save_task_itself_from_req(task)
 
         self.ui_backend.save_new_note_permanent(task)
         self.last_request_get_dict["taskid"] = [
             task.taskid]  # inject back so that the next rendered page can access it as if the note always existed
 
     def req_save_edited_note(self):
-        # TODO: docstring
-        # TODO prevent user setting/fixing the note id - if it doesnt exist, do not save
         """
         Saves a new version of an existing note from the GET and POST data.
-        Has a permanent effect - calls task_store.task_store_save()
+
+        Returns:
+            None:
         """
 
         if self.helper_action_get_request_is_wrong("req_save_edited_note"):
@@ -267,15 +338,24 @@ To be used for pages whose actions must not be repeated by reloading the page / 
             self.error_msg_queue_note.append("Note has not been saved - wrong session.")
             return
 
+        # note: If the user changes the taskid value in the edit submit request to another existing note,
+        #       that existing note is overwritten. This has to be intentional and taskids are long and
+        #       random.
         task_id = util.sanitize_singleline_string_for_tasksave(self.last_request_get_dict["taskid"][0])
         task = self.task_store.store_dict_id[task_id]
 
-        self.helper_save_note(task)
+        self.helper_save_task_itself_from_req(task)
 
         self.ui_backend.save_edited_note_permanent(task)
 
     def req_note_dismiss_reminder(self):
-        # TODO: docstring
+        """
+        Marks the note's reminder attribute as dismissed so that it won't show up again (until the attribute is set to
+        True by other code again) (gets the task id from GET).
+
+        Returns:
+            None:
+        """
         if self.helper_action_get_request_is_wrong("dismiss_reminder_and_display_note"):
             self.error_msg_queue_note.append("Reminder has not been dismisses - application error?")
             return
@@ -288,9 +368,11 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         self.task_store.task_store_save()
 
     def req_note_checkboxes_save(self):
-        # TODO: docstring
         """
-        Has a permanent effect - calls task_store.task_store_save()
+        Saves checkboxes for a note. Gets the required data from GET and POST. Has to get all checkboxes that are
+        checked, the rest is automatically unchecked.
+        Returns:
+            None:
         """
         if self.helper_action_get_request_is_wrong("req_note_checkboxes_save"):
             self.error_msg_queue_note.append("Checkboxes were not saved.")
@@ -315,6 +397,7 @@ To be used for pages whose actions must not be repeated by reloading the page / 
             self.error_msg_queue_note.append("Checkboxes were not saved - tried to save checkboxes for an older version of the note.")
             return
 
+        # TODO move to backend?
         post_data_keys = list(self.last_request_post_data_dict.keys())
         cms_str = util.convert_multiline_markup_string_into_safe_html(task.body)
         new_task_body = util.multiline_markup_checkbox_mapping(cms_str, task.body, edit_chkbox_state=True,
@@ -323,10 +406,15 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         task.body = new_task_body
         self.ui_backend.save_edited_note_permanent(task)
 
+    # TOOD rename? (remove "permanent")
     def req_import_notes_permanent(self):
-        # TODO: docstring
         """
-        Has a potentially permanent effect - imports notes that may be saved via task_store.task_store_save() on next operation, imports database
+        Imports notes (either by synchronization or by overwriting everything local). Doesn't save the result
+        permanently until another operation calls task_store.task_store_save() (all data-changing operations do it and
+        another launch of import would do it). Imports from the configured path.
+
+        Returns:
+            None:
         """
 
         if self.helper_action_get_request_is_wrong("req_import_notes_permanent"):
@@ -349,9 +437,11 @@ To be used for pages whose actions must not be repeated by reloading the page / 
             self.error_msg_queue_list.append(ret)
 
     def req_export_notes_permanent(self):
-        # TODO: docstring
         """
-        Has a permanent effect - calls task_store.task_store_save(), exports database
+        Exports notes to the configured path.
+
+        Returns:
+            None:
         """
 
         if self.helper_action_get_request_is_wrong("req_export_notes_permanent"):
@@ -370,9 +460,12 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         self.ui_backend.export_notes_permanent()
 
     def req_delete_taskid_permanent(self):
-        # TODO: docstring
         """
-        Has a permanent effect - calls task_store.task_store_save()
+        Deletes the notes specified by the task ids from POST data. This is to be the final function to be called in
+        the web ui in the process of deleting - this function doesn't ask for any confirmation.
+
+        Returns:
+            None:
         """
         if self.helper_action_get_request_is_wrong("req_delete_taskid_permanent"):
             self.error_msg_queue_list.append("Note deletion not performed.")
@@ -385,10 +478,13 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         task_id_list = self.last_request_post_data_dict["taskid"]
         self.ui_backend.delete_taskid_permanent(task_id_list)
 
+    # TODO rename? (add "permanent") (also for other methods that call task_store.task_store_save())
     def req_note_list_manipulate_tagdel(self):
-        # TODO: docstring
         """
-        Has a permanent effect - calls task_store.task_store_save()
+        Deletes the tag specified in POST data from notes having the task ids specified in POST data.
+
+        Returns:
+            None:
         """
         if self.helper_action_get_request_is_wrong("req_note_list_manipulate_tagdel"):
             self.error_msg_queue_list.append("Note manipulation not performed.")
@@ -408,9 +504,11 @@ To be used for pages whose actions must not be repeated by reloading the page / 
             self.task_store.task_store_save()
 
     def req_note_list_manipulate_tagadd(self):
-        # TODO: docstring
         """
-        Has a permanent effect - calls task_store.task_store_save()
+        Adds the tag specified in POST data to notes having the task ids specified in POST data.
+
+        Returns:
+            None:
         """
 
         if self.helper_action_get_request_is_wrong("req_note_list_manipulate_tagadd"):
@@ -431,9 +529,11 @@ To be used for pages whose actions must not be repeated by reloading the page / 
             self.task_store.task_store_save()
 
     def req_note_list_manipulate_foldermove(self):
-        # TODO: docstring
         """
-        Has a permanent effect - calls task_store.task_store_save()
+        Changes the folder specified in POST data for notes having the task ids specified in POST data.
+
+        Returns:
+            None:
         """
 
         if self.helper_action_get_request_is_wrong("req_note_list_manipulate_foldermove"):
@@ -482,7 +582,12 @@ To be used for pages whose actions must not be repeated by reloading the page / 
 
 
     def page_edit_note(self):
-        # TODO: docstring
+        """
+        Displays a note-editing page for an existing note whose task id is specified in GET data.
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
         task_found, task_id, task, notfound_page = self.helper_get_task_or_default()
         if not task_found:
@@ -491,30 +596,51 @@ To be used for pages whose actions must not be repeated by reloading the page / 
 
         history_back_id = self.helper_retrieve_last_request_get_dict_key_val_index_zero_or_return_none("history_back_id")
 
-        page_header_warning = None
+        page_header_list_of_warnings = None
         if self.error_msg_queue_note:
-            page_header_warning = self.helper_convert_msg_queue_note_to_list_for_output()
+            page_header_list_of_warnings = self.helper_convert_msg_queue_note_to_list_for_output()
 
-        page_body = edit_note_page_template(self.task_store, task, self.sess_action_auth,
+        page_body = html_page_templates.page_edit_note_template(self.task_store, task, self.sess_action_auth,
                                             editing_mode_existing_note=True, history_back_id=history_back_id,
-                                            page_header_warning=page_header_warning)
+                                            page_header_list_of_warnings=page_header_list_of_warnings)
 
         return page_body
 
     def page_add_new_note(self):
-        # TODO: docstring
+        """
+        Displays a note-editing page for a new (yet nonexistent) note.
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
         history_back_id = self.helper_retrieve_last_request_get_dict_key_val_index_zero_or_return_none("history_back_id")
 
         task = Task()  # just a temporary one, won't even be saved; it's just so that the form below can stay unchanged
 
-        page_body = edit_note_page_template(self.task_store, task, self.sess_action_auth,
+        page_body = html_page_templates.page_edit_note_template(self.task_store, task, self.sess_action_auth,
                                             editing_mode_existing_note=False, history_back_id=history_back_id)
 
         return page_body
 
     def unauth_page_display_note_public(self, tainted_task_id, tainted_task_pubauthid):
-        # TODO: docstring
+        """
+        Displays a read-only note if the provided note-specific authentication tokens are right. This allows displaying
+        notes without login. The GET data have to have the correct task id and the correct task pubauthid (supposed
+        to be unique for every note but it is user-configurable). If the pubauthid is shorter than 5 characters, access
+        is automatically denied even if it is correct.
+
+        Args:
+            tainted_task_id (str):
+            tainted_task_pubauthid (str):
+
+        Returns:
+            str: html page contents to be displayed to the unauthenticated user
+
+        Raises:
+            Exception: when anything is not right, an exception is raised; the exception should be anticipated by the
+                       caller because it is raised for every unauthorized access
+        """
 
         if tainted_task_id is None:
             raise Exception("task_id==None")
@@ -522,7 +648,7 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         if tainted_task_pubauthid is None:
             raise Exception("task_pubauthid==None")
 
-        task = self.task_store.store_dict_id[tainted_task_id]
+        task = self.task_store.store_dict_id[tainted_task_id]  # exception if not found
         if task is None:
             raise Exception("task==None")
 
@@ -544,7 +670,13 @@ To be used for pages whose actions must not be repeated by reloading the page / 
             return page_body
 
     def page_display_note(self):
-        # TODO: docstring
+        """
+        Displays the note specified by task id in GET data. The page contains links to save checkboxes or to edit the
+        note.
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
         task_found, task_id, task, notfound_page = self.helper_get_task_or_default()
         if not task_found:
@@ -579,8 +711,19 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         return page_body
 
     def page_list_notes(self, no_history=False):
-        # TODO: docstring
-        # main page - lists all notes
+        """
+        Displays a list of notes. The page contains links to existing folders, tags, virtual folders, other links, and
+        contains a list of all existing notes. This is the main page of woolnote.
+
+        Args:
+            no_history (bool): If true, this invocation is not saved into history as a point where to go back to. To be
+                               used when this method is called in an exception handler because saving the history would
+                               save not the request to display a note list but to do whatever action that has just
+                               thrown the exception.
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
         list_taskid_desc = self.task_store.sort_taskid_list_descending_lamport()
         title = "woolnote - all notes"
@@ -604,7 +747,7 @@ To be used for pages whose actions must not be repeated by reloading the page / 
             except:
                 page_header_small_text = "cannot get ssl cert sha256"
 
-        return template_page_list_notes(list_taskid_desc=list_taskid_desc, title=title,
+        return html_page_templates.page_list_notes_template(list_taskid_desc=list_taskid_desc, title=title,
                                         history_back_id=history_id, primary_task_store=self.task_store,
                                         virtual_folders=self.woolnote_config.virtual_folders,
                                         page_header_first_text=page_header_first_text,
@@ -612,7 +755,12 @@ To be used for pages whose actions must not be repeated by reloading the page / 
                                         page_header_optional_list_of_warnings=page_header_list_of_warnings)
 
     def page_list_trash(self):
-        # TODO: docstring
+        """
+        Displays a list of notes in the trash. The page is otherwise very similar to page_list_notes().
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
         list_taskid_desc = self.task_store_trash.sort_taskid_list_descending_lamport()
         title = "woolnote - trash"
@@ -626,7 +774,7 @@ To be used for pages whose actions must not be repeated by reloading the page / 
 
         history_id = self.save_history(["action"], alt_task_store_name=None)
 
-        return template_page_list_notes(list_taskid_desc=list_taskid_desc, title=title,
+        return html_page_templates.page_list_notes_template(list_taskid_desc=list_taskid_desc, title=title,
                                         primary_task_store=self.task_store, alt_task_store=self.task_store_trash,
                                         alt_task_store_name="task_store_trash", history_back_id=history_id,
                                         virtual_folders=self.woolnote_config.virtual_folders,
@@ -636,7 +784,13 @@ To be used for pages whose actions must not be repeated by reloading the page / 
                                         page_header_optional_list_of_warnings=page_header_list_of_warnings)
 
     def page_search_notes(self):
-        # TODO: docstring
+        """
+        Displays a list of notes matching the search_text provided in the GET data. The page is otherwise very similar
+        to page_list_notes().
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
         task_store_name = "task_store"
         alt_task_store = None
@@ -664,7 +818,7 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         if self.error_msg_queue_list:
             page_header_list_of_warnings = self.helper_convert_msg_queue_list_to_list_for_output()
 
-        return template_page_list_notes(list_taskid_desc=list_taskid_desc, title=title,
+        return html_page_templates.page_list_notes_template(list_taskid_desc=list_taskid_desc, title=title,
                                         highlight_in_notes=highlight_list, primary_task_store=self.task_store,
                                         alt_task_store=alt_task_store, alt_task_store_name=alt_task_store_name,
                                         history_back_id=history_id,
@@ -675,7 +829,13 @@ To be used for pages whose actions must not be repeated by reloading the page / 
                                         page_header_optional_list_of_warnings=page_header_list_of_warnings)
 
     def page_list_folder(self):
-        # TODO: docstring
+        """
+        Displays a list of notes in the folder specified in the GET data. The page is otherwise very similar
+        to page_list_notes().
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
 
         alt_task_store_name = None
@@ -712,7 +872,7 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         if self.error_msg_queue_list:
             page_header_list_of_warnings = self.helper_convert_msg_queue_list_to_list_for_output()
 
-        return template_page_list_notes(list_taskid_desc=list_taskid_desc, title=title,
+        return html_page_templates.page_list_notes_template(list_taskid_desc=list_taskid_desc, title=title,
                                         primary_task_store=self.task_store, alt_task_store=alt_task_store,
                                         alt_task_store_name=alt_task_store_name, history_back_id=history_id,
                                         virtual_folders=self.woolnote_config.virtual_folders,
@@ -722,7 +882,13 @@ To be used for pages whose actions must not be repeated by reloading the page / 
                                         page_header_optional_list_of_warnings=page_header_list_of_warnings)
 
     def page_list_tag(self):
-        # TODO: docstring
+        """
+        Displays a list of notes in the tag specified in the GET data. The page is otherwise very similar to
+        page_list_notes().
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
 
         alt_task_store_name = None
@@ -759,7 +925,7 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         if self.error_msg_queue_list:
             page_header_list_of_warnings = self.helper_convert_msg_queue_list_to_list_for_output()
 
-        return template_page_list_notes(list_taskid_desc=list_taskid_desc, title=title,
+        return html_page_templates.page_list_notes_template(list_taskid_desc=list_taskid_desc, title=title,
                                         primary_task_store=self.task_store, alt_task_store=alt_task_store,
                                         alt_task_store_name=alt_task_store_name, history_back_id=history_id,
                                         virtual_folders=self.woolnote_config.virtual_folders,
@@ -769,7 +935,12 @@ To be used for pages whose actions must not be repeated by reloading the page / 
                                         page_header_optional_list_of_warnings=page_header_list_of_warnings)
 
     def page_note_list_multiple_select(self):
-        # TODO: docstring
+        """
+        Displays a list of actions and list of selected notes on which the actions can be performed.
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
         tasks_to_delete = []
         try:
@@ -795,7 +966,12 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         return page_body
 
     def page_delete_notes(self):
-        # TODO: docstring
+        """
+        Displays a list of notes to delete with a red button deleting them for good and a cancel button.
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
         if self.helper_sessactionauth_is_wrong():
             self.error_msg_queue_list.append("Cannot display note deletion page - wrong session?")
@@ -831,7 +1007,12 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         return page_body
 
     def page_export_prompt(self):
-        # TODO: docstring
+        """
+        Displays a question whether to export notes into the configured path.
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
         nonce = self.create_new_nonce()
         history_back_id = self.helper_retrieve_last_request_get_dict_key_val_index_zero_or_return_none("history_back_id")
@@ -844,7 +1025,13 @@ To be used for pages whose actions must not be repeated by reloading the page / 
         return page_body
 
     def page_import_prompt(self):
-        # TODO: docstring
+        """
+        Displays a question whether to import notes from the configured path. Two types of import are offered - sync
+        import and plain overwrite import.
+
+        Returns:
+            str: html page contents to be displayed
+        """
 
         nonce = self.create_new_nonce()
         history_back_id = self.helper_retrieve_last_request_get_dict_key_val_index_zero_or_return_none("history_back_id")

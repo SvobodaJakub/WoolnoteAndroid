@@ -1,3 +1,7 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+# TODO: docstring for the file
 # TODO docstring
 # stuff in this file converts data to HTML
 # It is there so that there is only one file in the entire project that generates HTML and thus only one file that has
@@ -5,7 +9,6 @@
 
 import urllib
 import re
-import os # TODO: sanitize all usages in this file - they render into HTML
 from woolnote import util
 from woolnote import html_constants
 from woolnote import config
@@ -15,7 +18,6 @@ from collections import namedtuple
 
 def create_tag_folder_js_selectors_html_fragment_list(element_name, tag_folder_list, adding=False):
     # TODO docstring
-    # TODO: move to html_page_templates.py
     ss = util.sanitize_singleline_string_for_html
     tag_folder_list_html_fragment_list = []
     operator = "="
@@ -39,6 +41,7 @@ class FormattedLinkData():
     Holds information from which an HTML link fragment can be created. Ensures proper html sanitization of the data.
     """
     def __init__(self):
+        super().__init__()
         self.small = False
         self.red_bold = False
         self.request_params_dict = {}
@@ -76,8 +79,8 @@ class PageData():
     BODY_TAG_ATTR_JS_TEXTAREA_RESIZE = "BODY_TAG_ATTR_JS_TEXTAREA_RESIZE"
 
     def __init__(self):
-        self.body_tag_attr_variant = self.BODY_TAG_ATTR_NONE
         super().__init__()
+        self.body_tag_attr_variant = self.BODY_TAG_ATTR_NONE
 
     def page_head_title_to_html(self):
         raise NotImplementedError()
@@ -164,6 +167,7 @@ class PageData():
 class PageEditBaseData(PageData):
     # TODO docstring
     def __init__(self):
+        super().__init__()
         self.task_name = None
         self.folder_list = []
         self.tag_list = []
@@ -176,9 +180,8 @@ class PageEditBaseData(PageData):
         self.task_due_date = None
         self.sess_action_auth = None
         self.history_back_id = None
-        self.page_header_warning = None
+        self.page_header_list_of_warnings = None
         self.body_tag_attr_variant = self.BODY_TAG_ATTR_JS_TEXTAREA_RESIZE
-        super().__init__()
 
     def page_head_title_to_html(self):
         ss = util.sanitize_singleline_string_for_html
@@ -191,8 +194,10 @@ class PageEditBaseData(PageData):
     def page_header_to_html(self):
         ss = util.sanitize_singleline_string_for_html
         page_header = self.page_header_display_html_default
-        if self.page_header_warning:
-            page_header += " | " + ss(self.page_header_warning)
+        if self.page_header_list_of_warnings:
+            page_header += " | <b>Warning: {}</b>".format(
+                ss(" | ".join(self.page_header_list_of_warnings))
+            )
         return page_header
 
     def page_main_content_to_html(self):
@@ -281,9 +286,9 @@ class PageEditBaseData(PageData):
 class PageEditNewData(PageEditBaseData):
     # TODO docstring
     def __init__(self):
+        super().__init__()
         self.page_header_display_html_default = "create new note"
         self.display_header = True
-        super().__init__()
 
     def request_params_save_to_html(self):
         request_params_save = urllib.parse.urlencode(
@@ -309,9 +314,9 @@ class PageEditNewData(PageEditBaseData):
 class PageEditExistingData(PageEditBaseData):
     # TODO docstring
     def __init__(self):
+        super().__init__()
         self.page_header_display_html_default = "edit note"
         self.display_header = False
-        super().__init__()
 
     def request_params_save_to_html(self):
         request_params_save = urllib.parse.urlencode(
@@ -350,6 +355,7 @@ class PageListData(PageData):
     TaskDetails = namedtuple("TaskDetails", ["task_taskid", "task_due_date", "task_name", "task_folder", "task_tags", "task_body" ])
 
     def __init__(self):
+        super().__init__()
         self.page_title = None
         self.page_header_first_text = None
         self.page_header_optional_small_second_text = None
@@ -372,7 +378,6 @@ class PageListData(PageData):
         self.overdue_list = []
         self.reminder_list = []
 
-        super().__init__()
 
     def page_head_title_to_html(self):
         ss = util.sanitize_singleline_string_for_html
@@ -469,12 +474,10 @@ class PageListData(PageData):
         DIV_STYLE_TAGLISTS = """ style="width: 100%; clear: left; " """
         DIV_STYLE_NOTELIST = """ style="width: 100%; clear: left; " """
 
-        # TODO continue from here
         form_search_alt_task_store_name = ""
         if self.alt_task_store_name is not None:
             form_search_alt_task_store_name = """<input type="hidden" name="alt_task_store_name" value="{}">""".format(
-                self.alt_task_store_name)
-        # TODO: validate alt_task_store_name everywhere in *_to_html()?
+                ss(self.alt_task_store_name))
 
         manipulate_selected_nodes = """<input type="submit" class="uk-button" value="Manipulate selected notes"><br>"""
         if self.alt_task_store_name == "task_store_trash":
@@ -489,7 +492,6 @@ class PageListData(PageData):
         {__n__join_overdue_reminders_list_html_fragment_list_}
         <br>
         </div>
-
         """.format(
                 DIV_STYLE_REMINDERLIST=DIV_STYLE_REMINDERLIST,
                 __n__join_overdue_reminders_list_html_fragment_list_=overdue_reminders_list_html_fragment,
@@ -601,10 +603,10 @@ class PageUnauthDisplayNoteData(PageData):
     # TODO docstring
 
     def __init__(self):
+        super().__init__()
         self.task_name = None
         self.task_body = None
 
-        super().__init__()
 
     def page_head_title_to_html(self):
         ss = util.sanitize_singleline_string_for_html
@@ -638,6 +640,7 @@ class PageDisplayNoteData(PageData):
     # TODO docstring
 
     def __init__(self):
+        super().__init__()
         self.task_text_formatting = None
         self.task_taskid = None
         self.task_due_date = None
@@ -655,7 +658,6 @@ class PageDisplayNoteData(PageData):
         self.history_back_id = None
         self.self_sess_action_auth = None
 
-        super().__init__()
 
     def page_head_title_to_html(self):
         ss = util.sanitize_singleline_string_for_html
@@ -755,6 +757,7 @@ class PageMultipleSelectData(PageData):
     TaskDetails = namedtuple("TaskDetails", ["task_taskid", "task_due_date", "task_name", "task_folder", "task_tags", "task_body" ])
 
     def __init__(self):
+        super().__init__()
         self.self_sess_action_auth = None
         self.history_back_id = None
         self.folder_list = []
@@ -763,7 +766,6 @@ class PageMultipleSelectData(PageData):
         # list of TaskDetails
         self.task_details_to_delete = []
 
-        super().__init__()
 
     def page_head_title_to_html(self):
         page_title = "woolnote - edit selected notes"
@@ -873,13 +875,13 @@ class PageDeleteNotesData(PageData):
     TaskDetails = namedtuple("TaskDetails", ["task_taskid", "task_due_date", "task_name", "task_folder", "task_tags", "task_body" ])
 
     def __init__(self):
+        super().__init__()
         self.self_sess_action_auth = None
         self.history_back_id = None
 
         # list of TaskDetails
         self.task_details_to_delete = []
 
-        super().__init__()
 
     def page_head_title_to_html(self):
         page_title = "woolnote - list of notes to delete"
@@ -940,11 +942,12 @@ class PageExportPromptData(PageData):
     # TODO docstring
 
     def __init__(self):
+        super().__init__()
         self.self_sess_action_auth = None
         self.history_back_id = None
         self.nonce = None
+        self.export_path = None
 
-        super().__init__()
 
     def page_head_title_to_html(self):
         page_title = "woolnote - export notes"
@@ -959,6 +962,8 @@ class PageExportPromptData(PageData):
 
     def page_main_content_to_html(self):
 
+        ss = util.sanitize_singleline_string_for_html
+
         if not self.nonce:
             raise Exception("nonce has not been set for the page template")
 
@@ -972,8 +977,7 @@ class PageExportPromptData(PageData):
         <br>
         <br>
         <span style="font-size:20pt; " >
-        <a href="/woolnote?""" + request_params + """" class="uk-button">Yes - export to """ + str(os.path.join(
-            config.PATH_SAVE_DROPBOX_EXPORT, config.FILE_WOOLNOTE_ZIP)) + """</a><br>
+        <a href="/woolnote?""" + request_params + """" class="uk-button">Yes - export to """ + str(self.export_path) + """</a><br>
         </span>
         """
 
@@ -983,11 +987,12 @@ class PageImportPromptData(PageData):
     # TODO docstring
 
     def __init__(self):
+        super().__init__()
         self.self_sess_action_auth = None
         self.history_back_id = None
         self.nonce = None
+        self.import_path = None
 
-        super().__init__()
 
     def page_head_title_to_html(self):
         page_title = "woolnote - import notes"
@@ -1001,6 +1006,8 @@ class PageImportPromptData(PageData):
         return None
 
     def page_main_content_to_html(self):
+
+        ss = util.sanitize_singleline_string_for_html
 
         if not self.nonce:
             raise Exception("nonce has not been set for the page template")
@@ -1021,14 +1028,12 @@ class PageImportPromptData(PageData):
         file (if you do this by mistake, you have to manually restore notes from backups).
         <br>
         <span style="font-size:20pt; " >
-        <a href="/woolnote?""" + request_params + """" class="uk-button">Yes - merge and import from """ + str(os.path.join(
-            config.PATH_LOAD_DROPBOX_IMPORT, config.FILE_WOOLNOTE_ZIP)) + """</a><br>
+        <a href="/woolnote?""" + request_params + """" class="uk-button">Yes - merge and import from """ + ss(self.import_path) + """</a><br>
         </span>
         <br>
         <br>
         <span style="font-size:20pt; " >
-        <a href="/woolnote?""" + request_params_replace + """" class="uk-button">Yes - replace all local notes with import from """ + str(os.path.join(
-            config.PATH_LOAD_DROPBOX_IMPORT, config.FILE_WOOLNOTE_ZIP)) + """ (overwrite all notes!)</a><br>
+        <a href="/woolnote?""" + request_params_replace + """" class="uk-button">Yes - replace all local notes with import from """ + ss(self.import_path) + """ (overwrite all notes!)</a><br>
         </span>
         """
         return page_main_body

@@ -1,4 +1,8 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
 # TODO: docstring for the file
+# TODO have css uikit in a separate file because of licensing and because it's nicer
 
 # constants for HTML contents
 #############################

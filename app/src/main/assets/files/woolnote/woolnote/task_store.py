@@ -1,3 +1,7 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+# TODO: docstring for the file
 import re
 from woolnote import util
 from woolnote import config
@@ -13,7 +17,10 @@ class Task():
     # TODO: add more fields
 
     def __init__(self):
-        # TODO: docstring
+        """
+        Creates a new empty task with default properties.
+        """
+        super().__init__()
         curr_date = util.current_timestamp()
         self.name = ""
         self.folder = ""
@@ -31,7 +38,12 @@ class Task():
         self.public_share_auth = util.create_id_task()
 
     def serialize(self):
-        # TODO: docstring
+        """
+        Creates a textual representation of the task so that it can be saved and loaded later.
+
+        Returns:
+            str: Serialized task.
+        """
         s = util.sanitize_singleline_string_for_tasksave
         if self.folder == "":
             self.folder = config.DEFAULT_FOLDER
@@ -61,9 +73,16 @@ class Task():
         return output_string
 
     def deserialize(self, input_string):
-        # TODO: docstring
-        """Reads the input_string into self as a transaction. Returns True on success,
-        False on fail. Self doesn't change on fail."""
+        """
+        Reads the input_string into self as a transaction. Returns True on success,
+        False on fail. Self doesn't change on fail.
+
+        Args:
+            input_string (str): The serialized representation of the task
+
+        Returns:
+            bool: Whether successful & self changed or unsuccessful & self unchanged.
+        """
         tmp_task = Task()
         parse_state_id_known = False
         parse_state_name_known = False
@@ -158,6 +177,7 @@ class Task():
                 else:
                     parse_state_body.append(line)
 
+        # start modifying self only after everything is parsed and potential errors or exceptions are the past
         if parse_state_id_known and parse_state_name_known and not parse_state_inside_body and parse_state_body_known:
             self.taskid = tmp_task.taskid
             self.name = tmp_task.name
@@ -185,7 +205,14 @@ class Task():
 
 class TaskStore():
     def __init__(self, filepath):
-        # TODO: docstring
+        """
+        Creates an in-memory task store that can load or save its contents from/to a file, can accept new tasks, can
+        perform searches over tasks.
+
+        Args:
+            filepath (str): File into which and from which tasks can be saved / loaded.
+        """
+        super().__init__()
         self.store_dict_id = {}
         self.lamport_clock = 1
         self.export_lamport_clock = -1  # lamport clock at the last export (not just save, but the user-facing export functionality)
@@ -193,7 +220,12 @@ class TaskStore():
         self.filepath = filepath
 
     def serialize(self):
-        # TODO: docstring
+        """
+        Returns a textual representation of itself and all tasks.
+
+        Returns:
+            str: serialized task store
+        """
         s = util.sanitize_singleline_string_for_tasksave
         serialized_list = []
         serialized_list.append("EXPORT-LAMPORT-CLOCK " + s(str(self.export_lamport_clock)) + "\n")
@@ -209,7 +241,16 @@ class TaskStore():
         return serialized
 
     def task_store_save(self, alt_path=None):
-        # TODO: docstring
+        """
+        Saves the serialized itself into the file configured in __init__(). This method has to be called manually,
+        the task store doesn't save its in-memory representation into the file automatically.
+
+        Args:
+            alt_path (Union[str, None]): Alternative path where to save.
+
+        Returns:
+            None:
+        """
         path = self.filepath
         if alt_path is not None:
             path = alt_path
@@ -217,7 +258,16 @@ class TaskStore():
             stored_file.write(self.serialize())
 
     def task_store_load(self, alt_path=None):
-        # TODO: docstring
+        """
+        Loads the serialized data from the file configured in __init__(), deserializes them and adds them to any data
+         that were held in memory by the task store.
+
+        Args:
+            alt_path (Union[str, None]): Alternative path where to load from.
+
+        Returns:
+            None:
+        """
         path = self.filepath
         if alt_path is not None:
             path = alt_path
@@ -253,29 +303,68 @@ class TaskStore():
                                 task_strings = []
 
     def add_deserialized(self, task):
-        # TODO: docstring
-        """Doesn't advance the lamport clock."""
+        """
+        Adds a new task and doesn't advance the lamport clock.
+
+        Args:
+            task (woolnote.task_store.Task): Task to add.
+
+        Returns:
+            None:
+        """
         self.store_dict_id[task.taskid] = task
         self.lamport_clock = max(self.lamport_clock, int(task.lamport_timestamp))
 
     def update_lamport_clock(self, ext_clock):
-        # TODO: docstring
+        """
+        Updates internal lamport clock according to external clock.
+
+        Args:
+            ext_clock (int): External lamport clock
+
+        Returns:
+            None:
+        """
         self.lamport_clock = max(self.lamport_clock, int(ext_clock))
 
     def add(self, task):
-        # TODO: docstring
+        """
+        Adds a new task and advances the lamport clock both in the added task and in the task store.
+
+        Args:
+            task (woolnote.task_store.Task):
+
+        Returns:
+            None:
+        """
         self.store_dict_id[task.taskid] = task
         self.lamport_clock = 1 + max(self.lamport_clock, int(task.lamport_timestamp))
         task.lamport_timestamp = self.lamport_clock
 
     def touch(self, taskid):
-        # TODO: docstring
+        """
+        Advances the lamport clock both on the task by the given taskid and on the task store itself. The task store's
+        internal lamport clock is used as the reference.
+
+        Args:
+            taskid (str): identifies the task for which to advance the lamport clock
+
+        Returns:
+            None:
+        """
         self.lamport_clock = 1 + max(self.lamport_clock, int(self.store_dict_id[taskid].lamport_timestamp))
         self.store_dict_id[taskid].lamport_timestamp = self.lamport_clock
 
     def sort_taskid_list_descending_lamport_helper(self, taskid_list):
-        # TODO: docstring
-        """Sorts the input list of taskid by lamport clock in decreasing order."""
+        """
+        Sorts the input list of taskids by lamport clock in descending order. No state is changed.
+
+        Args:
+            taskid_list (Union[dict_keys, List[str]]): A list of taskids identifying which tasks to sort.
+
+        Returns:
+            List[str]: taskids sorted by lamport clock in descending order
+        """
         tuples_taskid_lamport = []
         for taskid in taskid_list:
             task = self.store_dict_id[taskid]
@@ -286,18 +375,38 @@ class TaskStore():
         return sorted_taskid_desc
 
     def sort_taskid_list_descending_lamport(self):
-        # TODO: docstring
-        """Returns a list of taskid sorted by lamport clock in decreasing order."""
+        """
+        Returns a list of taskids (of all tasks in the task store) sorted by their lamport clock in descending order.
+        No state is changed.
+
+        Returns:
+            List[str]: taskids sorted by lamport clock in descending order
+        """
         sorted_taskid_desc = self.sort_taskid_list_descending_lamport_helper(self.store_dict_id.keys())
         return sorted_taskid_desc
 
     def remove(self, taskid):
-        # TODO: docstring
+        """
+        Removes the reference to the task of the given taskid from the task store. Doesn't advance the removed task's
+        lamport clock but it does advance the task store's lamport clock by 1.
+
+        Args:
+            taskid (str): Taskid identifying the task to be deleted from the task store.
+
+        Returns:
+            None:
+        """
         self.lamport_clock += 1
         del (self.store_dict_id[taskid])
 
     def get_folder_list(self):
-        # TODO: docstring
+        """
+        Returns a list of folders. The list is obtained by iterating through all tasks in the task store and reading the
+        names of the folders they have set. Each task can belong to exactly one folder and the folder is a string.
+
+        Returns:
+            List[str]: List of all folders used by all the tasks.
+        """
         folder_set = set()
         for taskid, task in self.store_dict_id.items():
             if task.folder:
@@ -306,7 +415,13 @@ class TaskStore():
         return folder_list
 
     def get_tag_list(self):
-        # TODO: docstring
+        """
+        Returns a list of tags. The list is obtained by iterating through all tasks in the task store and reading the
+        names of the tags they have set. Each task can have zero or more tags set and each tag is a string.
+
+        Returns:
+            List[str]: List of all tags used by all the tasks.
+        """
         tag_set = set()
         for taskid, task in self.store_dict_id.items():
             for tag in task.tags:
@@ -316,8 +431,15 @@ class TaskStore():
         return tag_list
 
     def get_context_list(self):
-        # TODO: docstring
-        """Returns the list of GTD context strings in the form of @someword."""
+        """
+        Returns the list of GTD context strings from the bodies of all tasks. A GTD context string is in the form of
+        "@someword". This method returns only those such strings that don't immediately follow with a dot and more
+        characters (that would be an email address) and that don't have characters immediately before the @ sign
+        (that would again be an email address).
+
+        Returns:
+            List[str]:
+        """
         context_set = set()
         ctx_re = re.compile("""(?<!\w)       # Negative lookbehind, not included in matched string
                                              #  - character immediately preceding @ - that would be
@@ -340,8 +462,15 @@ class TaskStore():
         return context_list
 
     def filter_folder(self, folder):
-        # TODO: docstring
-        """Returns only those taskids from the task store which are in the specified folder."""
+        """
+        Returns only those taskids from the task store which are in the specified folder.
+
+        Args:
+            folder (str): folder
+
+        Returns:
+            List[str]: taskids from the given folder
+        """
         list_taskid_unfiltered = self.sort_taskid_list_descending_lamport()
         list_taskid_filtered = []
         for taskid in list_taskid_unfiltered:
@@ -351,8 +480,15 @@ class TaskStore():
         return list_taskid_filtered
 
     def filter_tag(self, tag):
-        # TODO: docstring
-        """Returns only those taskids from the task store which have the specified tag."""
+        """
+        Returns only those taskids from the task store which have the specified tag.
+
+        Args:
+            tag (str): tag
+
+        Returns:
+            List[str]: taskids for the given tag
+        """
         list_taskid_unfiltered = self.sort_taskid_list_descending_lamport()
         list_taskid_filtered = []
         for taskid in list_taskid_unfiltered:
@@ -362,8 +498,15 @@ class TaskStore():
         return list_taskid_filtered
 
     def filter_search(self, search_text):
-        # TODO: docstring
-        """Returns only those taskids from the task store which contain the specified text."""
+        """
+        Returns only those taskids from the task store which contain the specified text. Search is case-insensitive.
+
+        Args:
+            search_text (str): case-insensitive text to be searched
+
+        Returns:
+            List[str]: taskids matching the searched text.
+        """
         list_taskid_unfiltered = self.sort_taskid_list_descending_lamport()
         list_taskid_filtered = []
         for taskid in list_taskid_unfiltered:

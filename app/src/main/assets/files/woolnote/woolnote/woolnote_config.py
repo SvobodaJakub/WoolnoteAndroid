@@ -1,3 +1,7 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+# TODO: docstring for the file
 # woolnote config class
 #######################
 from woolnote.task_store import Task
@@ -71,8 +75,8 @@ arbitrary [ ] checkbox or checked [x] checkbox
 
     def __init__(self):
         # TODO: docstring
+        super().__init__()
         self.virtual_folders = {}
-        super().__init__()  # TODO ensure super is called also in other inits
 
     def save_default_config_note(self, task_store):
         # TODO: docstring

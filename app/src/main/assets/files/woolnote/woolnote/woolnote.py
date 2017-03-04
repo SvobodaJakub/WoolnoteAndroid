@@ -1,7 +1,12 @@
 # qpy:webapp:Woolnote
 # qpy:fullscreen
-# qpy://127.0.0.1:8088/woolnote?woolauth=sleepysheep
+# qpy://127.0.0.1:8088/woolnote?woolauth=please_change_me
 
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+
+# TODO: docstring for the file
 """TODO docstring"""
 
 import argparse
@@ -41,10 +46,10 @@ from woolnote.ui_auth import WoolnoteUIAuth
 #  + TODO: html escaping
 #  + TODO: folders
 #  + TODO: tags
-#  - TODO: common html constructs into functions
-#  - TODO: common html styles into functions
+#  + TODO: common html constructs into functions
+#  + TODO: common html styles into functions
 #  - TODO: very light background colors that signify the action - green=view, blue=edit/new, red=delete, white=settings
-#  - TODO: main page offers folders and tags on top, in two columns to save vertical space, notes are below
+#  + TODO: main page offers folders and tags on top, in two columns to save vertical space, notes are below
 #  + TODO: main page checkboxes for actions
 #      #+ TODO: delete
 #      #+ TODO: add tag
@@ -66,7 +71,7 @@ from woolnote.ui_auth import WoolnoteUIAuth
 #  - TODO: task body delimiter should be randomly generated on every save instead of using taskid; check that import works with that
 #  - TODO: create tests for everything
 #  + TODO: js hide div containing everything else during note edit - https://stackoverflow.com/questions/4528085/toggle-show-hide-div-with-button
-#  - TODO: split the UI to backend & frontend; frontend is purely HTML, backend deals with data manipulation
+#  + TODO: split the UI to backend & frontend; frontend is purely HTML, backend deals with data manipulation
 #  + TODO: search not case sensitive
 #  - TODO: interactive import
 #  + TODO: import error if lamport clock is lower
@@ -83,12 +88,6 @@ from woolnote.ui_auth import WoolnoteUIAuth
 
 
 
-
-# for debugging
-# TODO: delete
-def task_store_list_print_simple():
-    for taskid, task in task_store.store_dict_id.items():
-        util.dbgprint(task.name)
 
 
 # if __name__ == "__main__":
@@ -166,8 +165,8 @@ def serve_on_port(port, use_ssl=False):
 #         """.format(exc=ss(repr(exc)), tra=cmps(repr(traceback.format_exception(etype, evalue, etraceback)))))
 # serve_on_port(8088, False)
 
-server_http = get_server_on_port(8088, False)
-server_https = get_server_on_port(8089, True)
+server_http = get_server_on_port(config.HTTP_PORT, False)
+server_https = get_server_on_port(config.HTTPS_PORT, True)
 
 
 def serve_forever(*servers):

@@ -1,37 +1,137 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+# TODO: docstring for the file
 import os
 import copy
 import zipfile
 from woolnote import config
 from woolnote import util
-from woolnote.task_store import Task, TaskStore
+from woolnote.task_store import Task, TaskStore, MARKUP, PLAIN
 
 
 # UI backend
 ############
 
 class UIBackend():
-    # TODO: better docstring
 
     def __init__(self, task_store, task_store_trash):
-        # TODO: docstring
+        """
+        Class holding references to the opened default and trash task stores and allowing UI-centric operations to be
+        performed. The operations are not tied to any particular type of UI.
+
+        Args:
+            task_store (woolnote.task_store.TaskStore):
+            task_store_trash (woolnote.task_store.TaskStore):
+        """
+        super().__init__()
         self.task_store = task_store
         self.task_store_trash = task_store_trash
-        super().__init__()
+
+    def helper_sanitize_task_before_save(self, task_to_be_updated,
+                                         tainted_task_name,
+                                         tainted_task_folder,
+                                         tainted_task_pubauthid,
+                                         tainted_task_tags,
+                                         tainted_task_body,
+                                         tainted_due_date,
+                                         tainted_formatting):
+        """
+        Reads data for a new/saved note from POST data, performs sanitization, and correctly saves the data to a note
+        (that also entails resetting the reminder flag if due date changes, correctly processing body text based on
+        formatting used, setting the correct values for the formatting property). The data are saved into the provided
+        task_to_be_updated but that task is not saved into a task store (you have to do that using a different function
+        afterwards).
+
+        Args:
+            task_to_be_updated (woolnote.task_store.Task):
+            tainted_task_name (str):
+            tainted_task_folder (str):
+            tainted_task_pubauthid (str):
+            tainted_task_tags (str):
+            tainted_task_body (str):
+            tainted_due_date (str):
+            tainted_formatting (str):
+
+        Returns:
+            None:
+        """
+        # TODO: can this be broken by other unicode newline characters?
+
+        if tainted_task_tags.endswith(", "):
+            tainted_task_tags = tainted_task_tags[:-2]
+
+        task_to_be_updated.name = util.sanitize_singleline_string_for_tasksave(tainted_task_name)
+        task_to_be_updated.folder = util.sanitize_singleline_string_for_tasksave(tainted_task_folder)
+        task_to_be_updated.tags = {util.sanitize_singleline_string_for_tasksave(x) for x in tainted_task_tags.split(",")}
+
+        old_due_date = task_to_be_updated.due_date
+        task_to_be_updated.due_date = util.sanitize_singleline_string_for_tasksave(tainted_due_date)
+        if old_due_date != task_to_be_updated.due_date:
+            # when due date changes, the note is again ready to display a red reminder
+            task_to_be_updated.due_date_reminder_dismissed = False
+
+        task_to_be_updated.public_share_auth = util.sanitize_singleline_string_for_tasksave(tainted_task_pubauthid)
+        # too short strings are inherently insecure
+        if len(task_to_be_updated.public_share_auth) < 5:
+            task_to_be_updated.public_share_auth = util.create_id_task()
+
+        if tainted_formatting == "markup":
+            task_to_be_updated.body_format = MARKUP
+        elif tainted_formatting == "plaintext":
+            task_to_be_updated.body_format = PLAIN
+        else:
+            # keeping unchanged, shouldn't happen
+            util.dbgprint("tainted_formatting had a nonstandard value {}".format(tainted_formatting))
+            pass
+
+        # TODO: if the new body contains the delimiter used by the saved file in a vulnerable way, escape/remove it (don't do it here, do it in task_store.py)
+        if task_to_be_updated.body_format == MARKUP:
+            task_to_be_updated.body = util.task_body_save_fix_multiline_markup_bullet_lists(tainted_task_body)
+        else:
+            task_to_be_updated.body = util.task_body_save_fix_newlines(tainted_task_body)
 
     def save_new_note_permanent(self, task):
-        # TODO: better docstring
+        """
+        Saves a new task into the task store. That is, a task whose taskid is not already in the task store.
+        Args:
+            task (woolnote.task_store.Task):
+
+        Returns:
+            None:
+        """
         self.task_store.add(task)
         self.task_store.task_store_save()
 
     def save_edited_note_permanent(self, task):
-        # TODO: better docstring
+        """
+        Saves a new version of an existing task into a task store. That is, a task whose taskid is already in the task store.
+        Args:
+            task (woolnote.task_store.Task):
+
+        Returns:
+            None:
+        """
         task.changed_date = util.current_timestamp()
         self.task_store.touch(task.taskid)
         self.task_store.task_store_save()
 
     def import_notes_permanent(self, replace_local_request):
-        """If replace_local_request == True, then the remote database simply replaces the local database. Returns error_message or None if no error."""
-        # TODO: better docstring
+        """
+
+        Imports notes from the configured path into the task store. Does either differential sync or overwrite all import
+        depending on the argument.
+
+        Args:
+            replace_local_request (bool): If replace_local_request == True, then the remote database simply replaces the local database.
+
+        Returns:
+            Union[str, None]: error message or None if no error
+        """
+
+        # TODO: the import is not permanent until another action saves the task store.
+        # TODO: ? print a warning that if you are unhappy with the operation and want to revert the import, kill the woolnote server immediately and start it again and the import operation will be reverted.
+
         self.task_store.task_store_save()
         self.task_store_trash.task_store_save()
 
@@ -207,9 +307,11 @@ class UIBackend():
 
     def export_notes_permanent(self):
         """
-        Has a permanent effect - calls task_store.task_store_save(), exports database
+        Exports the task store to a file in the configured path.
+
+        Returns:
+            None:
         """
-        # TODO: better docstring
 
         util.tasks_backup(self.task_store, self.task_store_trash)
 
@@ -233,9 +335,14 @@ class UIBackend():
 
     def delete_taskid_permanent(self, task_id_list):
         """
-        Has a permanent effect - calls task_store.task_store_save()
+        Moves a specified tasks from task store into task trash store.
+
+        Args:
+            task_id_list (List[str]): Task ids to be deleted.
+
+        Returns:
+            None:
         """
-        # TODO: better docstring
         for taskid in task_id_list:
             task = self.task_store.store_dict_id[taskid]
             self.task_store_trash.add(task)
@@ -245,9 +352,16 @@ class UIBackend():
 
     def notes_tagdel_permanent(self, task_id_list, tagdel):
         """
-        Has a permanent effect - calls task_store.task_store_save()
+        Deletes the specified tag from the tasks from the task store specified by task ids.
+
+        Args:
+            task_id_list (List[str]): Task ids to be modified.
+            tagdel (str): Tag to be deleted from the specified tasks.
+
+        Returns:
+            None:
         """
-        # TODO: better docstring
+
         for taskid in task_id_list:
             task = self.task_store.store_dict_id[taskid]
             if tagdel in task.tags:
@@ -257,9 +371,15 @@ class UIBackend():
 
     def notes_tagadd_permanent(self, task_id_list, tagadd):
         """
-        Has a permanent effect - calls task_store.task_store_save()
+        Adds the specified tag to the tasks from the task store specified by task ids.
+
+        Args:
+            task_id_list (List[str]): Task ids to be modified.
+            tagadd (str): Tag to be added to the specified tasks.
+
+        Returns:
+            None:
         """
-        # TODO: better docstring
         for taskid in task_id_list:
             task = self.task_store.store_dict_id[taskid]
             self.task_store.touch(task.taskid)
@@ -268,9 +388,14 @@ class UIBackend():
 
     def notes_foldermove_permanent(self, task_id_list, foldermove):
         """
-        Has a permanent effect - calls task_store.task_store_save()
+        Moves the tasks from the task store specified by task ids to the specified folder.
+        Args:
+            task_id_list (List[str]): Task ids to be moved.
+            foldermove (str): Folder which to move tasks to.
+
+        Returns:
+            None:
         """
-        # TODO: better docstring
         for taskid in task_id_list:
             task = self.task_store.store_dict_id[taskid]
             self.task_store.touch(task.taskid)
@@ -280,8 +405,13 @@ class UIBackend():
     def search_notes(self, task_store_name, search_query):
         """
         Returns a list of tasks from the specified task store that match the search query and a list of strings to highlight (matches).
+        Args:
+            task_store_name (str): Name of the task store where to search. Only certain values are allowed and unknown values fall back to the default task store. (Read the source code for more info.)
+            search_query (str): Search query in the language of util.search_expression_tokenizer().
+
+        Returns:
+            Tuple[List[str], List[str]]: The list of tasks from the specified task store that match the search query and a list of strings to highlight (matches).
         """
-        # TODO: better docstring
         if task_store_name == "task_store":
             used_task_store = self.task_store
         elif task_store_name == "task_store_trash":
@@ -290,9 +420,6 @@ class UIBackend():
             used_task_store = self.task_store
         else:
             raise ValueError("Unknown task store name - {}".format(task_store_name))
-
-        list_taskid_desc_unfiltered = used_task_store.sort_taskid_list_descending_lamport()
-        list_taskid_desc = []
 
         tokens = util.search_expression_tokenizer(search_query)
         tree_root = util.search_expression_build_ast(tokens)

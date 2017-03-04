@@ -412,6 +412,7 @@ class StateSingleton {
                         cert_hash = Util.SimpleSanitizeShellString(cert_hash);
                         cert_hash = cert_hash.replaceAll("=", " = ").replaceAll(":", " ");
 
+                        // TODO reused paths to shared variables
                         String path_save_db = "/sdcard/woolnote";
                         String path_save_db_backup = "/sdcard/woolnote/backups";
                         String login_password = Util.SimpleSanitizeShellString(GetLoginPassword());
@@ -499,6 +500,7 @@ class StateSingleton {
         }
     }
 
+    // TODO reused paths to shared variables
     //TODO use http://stackoverflow.com/questions/3853472/creating-a-directory-in-sdcard-fails instead of /sdcard
     private Boolean createSdcardFilesIfNotExisting() {
         File woolnoteDir = new File("/sdcard", "woolnote");

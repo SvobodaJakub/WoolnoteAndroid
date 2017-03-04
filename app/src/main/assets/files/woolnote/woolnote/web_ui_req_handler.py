@@ -1,3 +1,7 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+# TODO: docstring for the file
 import urllib
 from http.server import BaseHTTPRequestHandler
 import sys
@@ -14,14 +18,19 @@ from woolnote import html_constants
 
 
 def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
-    # TODO: docstring
-    class WebInterfaceHandlerLocal(BaseHTTPRequestHandler):
-        # TODO: docstring
+    """
+    Returns the class for the web request handler which has access to data in the arguments. (Because the class is
+    then used in such a way that it's not possible to pass additional arguments to its __init__().)
+    Args:
+        woolnote_config (woolnote.woolnote_config.WoolnoteConfig): The used shared instance of the current woolnote configuration (e.g. virtual folders).
+        task_store (woolnote.task_store.TaskStore): The primary task store currently used.
+        web_ui (woolnote.web_ui.WebUI): Web UI handlers that are called by req_handler_*() methods in the returned class.
+        ui_auth (woolnote.ui_auth.WoolnoteUIAuth): The authentication module to be used for checking authentication credentials and authorizing access.
 
-        # TODO
-        # - login form
-        # - public areas / public notes
-        # - security tokens in get/post?
+    Returns:
+        type: class WebInterfaceHandlerLocal(BaseHTTPRequestHandler) that holds the arguments in its scope
+    """
+    class WebInterfaceHandlerLocal(BaseHTTPRequestHandler):
 
         HTTP_STATIC_RESOURCES = {
             "/uikit-2.27.1.gradient-customized.css": {
@@ -37,7 +46,13 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
         }
 
         def __init__(self, *args, **kwargs):
-            # TODO: docstring
+            """
+            Request handler that calls web_ui.py to do the heavy lifting.
+
+            Args:
+                *args ():
+                **kwargs ():
+            """
             self.last_request_get_dict = {}
             self.last_request_post_data_dict = {}
             self.last_request_post_data = ""
@@ -47,8 +62,12 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
             super().__init__(*args, **kwargs)
 
         def helper_check_permanent_pwd(self):
-            # TODO
-            pass
+            """
+            Checks whether the password provided in the GET data (in the request path) is correct.
+
+            Returns:
+                bool: True if the password should be accepted, False otherwise.
+            """
             try:
                 full_path = self.path
                 user_supplied_key, user_supplied_value = full_path.split("=")
@@ -61,7 +80,12 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
                 return False
 
         def helper_check_one_time_pwd(self):
-            # TODO: docstring
+            """
+            Checks whether the one-time password provided in the GET data (in the request path) is correct.
+
+            Returns:
+                bool: True if the OTP should be accepted, False otherwise.
+            """
             try:
                 full_path = self.path
                 user_supplied_key, user_supplied_value = full_path.split("=")
@@ -74,8 +98,13 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
                 return False
 
         def helper_get_request_authentication(self):
-            # TODO: docstring
-            """Determines whether the request is authenticated from path or from cookies."""
+            """
+            Sets self.authenticated to True or False based on whether the request is authenticated from path or from
+            cookies.
+
+            Returns:
+                None:
+            """
 
             self.authenticated = False
 
@@ -103,8 +132,13 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
                 util.dbgprint("exception in cookie handling {}".format(str(exc)))
 
         def get_request_data(self):
-            # TODO: docstring
-            """Retrieves and saves the request GET and POST data and determines whether the request is authenticated."""
+            """
+            Copies the request GET and POST data into self.last_request_get_dict, self.last_request_path,
+            self.last_request_post_data_dict and sets self.authenticated (bool) based based on the data and cookie.
+
+            Returns:
+                None:
+            """
 
             try:
                 self.last_request_get_dict = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
@@ -127,14 +161,23 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
             self.helper_get_request_authentication()
 
         def req_handler_authenticated(self):
-            # TODO: docstring
+            """
+            Request handler for authenticated requests. To be used by helper_generate_page_contents().
+
+            Returns:
+                str: Contents of the resulting page.
+            """
             page_content = "<html><body>N/A</body></html>"
             # reload the config settings (the config note could have been changed by the user)
             woolnote_config.read_from_config_note(task_store)
 
             def history_go_back():
-                # TODO: docstring
-                """Set the page to go back in history - either directly in page_content or using last_request_get_dict"""
+                """
+                Set the page to go back in history - rewriting self.last_request_get_dict
+
+                Returns:
+                    None:
+                """
                 nonlocal page_content
                 try:
                     util.dbgprint("history_back - try")
@@ -148,7 +191,7 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
                     if history_id == "main_list":
                         pass
                     else:
-                        self.last_request_get_dict = web_ui.get_last_request_from_history_id(history_id)
+                        self.last_request_get_dict = web_ui.get_last_get_request_from_history_id(history_id)
                         web_ui.set_last_request(self.last_request_post_data_dict, self.last_request_get_dict)
                     util.dbgprint("history_back - end of try")
                 except:
@@ -156,8 +199,15 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
                     pass
 
             def display_content_after_history_back_during_request_processing():
-                # TODO: docstring
-                """Display the right page after history_go_back() during processing of a request"""
+                """
+                Display the right page after history_go_back() during processing of a request by setting page_content
+                using the correct type of page listing notes. If the page to be displayed is not clear, it just
+                displays a list of all notes which is not saved back to history because the action is not what we'd
+                want to go back to in the first place.
+
+                Returns:
+                    None:
+                """
                 nonlocal page_content
                 if "action" not in self.last_request_get_dict:
                     page_content = web_ui.page_list_notes(no_history=True)
@@ -280,7 +330,12 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
             return page_content
 
         def req_handler_unauthenticated(self):
-            # TODO: docstring
+            """
+            Request handler for unauthenticated requests.
+
+            Returns:
+                str: Contents of the resulting page.
+            """
             page_content = "<html><body>N/A</body></html>"
             try:
                 if self.last_request_get_dict["action"][0] == "display_note":
@@ -292,8 +347,13 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
             return page_content
 
         def helper_generate_page_contents(self):
-            # TODO: docstring
-            """Generates contents for the main woolnote functionality - the pages, request handlers, etc. Both authenticated and unauthenticated."""
+            """
+            Generates contents for the main woolnote functionality - the pages, request handlers, etc. Both
+            authenticated and unauthenticated. Based on the current request POST, GET, path, cookies.
+
+            Returns:
+                str: The generated page.
+            """
             page_content = "<html><body>N/A</body></html>"
             if self.authenticated:
                 page_content = self.req_handler_authenticated()
@@ -303,7 +363,12 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
             return page_content
 
         def req_handler(self):
-            # TODO: docstring
+            """
+            Handles requests to both static and dynamic content. Writes contents to self.wfile.
+
+            Returns:
+                None:
+            """
             resource_found = False
             # handle static requests
             for resource in self.HTTP_STATIC_RESOURCES:
@@ -322,27 +387,28 @@ def get_WebInterfaceHandlerLocal(woolnote_config, task_store, web_ui, ui_auth):
             return
 
         def do_GET(self):
-            # TODO: docstring
             self.get_request_data()
             self.do_HEAD()
             self.req_handler()
             return
 
         def do_POST(self):
-            # TODO: docstring
             self.get_request_data()
+
+            # instead of do_HEAD(), do similar work
+            # the same response
             self.send_response(200)
+            # reply for POST can only be text/html because of how woolnote works
             self.send_header("Content-Type", "text/html")
+            # set auth cookie
             if self.authenticated:
                 self.send_header("Set-cookie", "auth=" + ui_auth.return_cookie_authenticated())
             self.end_headers()
+            # end of what is otherwise done in do_HEAD()
+
             self.req_handler()
 
         def do_HEAD(self):
-            # TODO: docstring
-            '''
-            Handle a HEAD request.
-            '''
             self.send_response(200)
             resource_found = False
             for resource in self.HTTP_STATIC_RESOURCES:

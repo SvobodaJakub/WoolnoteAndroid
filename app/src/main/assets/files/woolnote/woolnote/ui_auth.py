@@ -1,3 +1,7 @@
+# University of Illinois/NCSA Open Source License
+# Copyright (c) 2017, Jakub Svoboda.
+
+# TODO: docstring for the file
 from woolnote import util
 from woolnote import config
 
@@ -6,27 +10,46 @@ from woolnote import config
 
 class WoolnoteUIAuth():
     def __init__(self):
-        # TODO docstring
+        """
+        Class providing functionality to generate and check authentication strings.
+        """
+        super().__init__()
         self.authenticated_cookie = util.create_id_task()
         self.one_time_pwd = util.generate_one_time_pwd()
         self.one_time_pwd_tries_left = 0
         self.ONE_TIME_PWD_TRIES = 5
 
     def return_cookie_authenticated(self):
-        # TODO docstring
+        """
+        Returns a string that should be used as a cookie granting access.
+
+        Returns:
+            str: The string value of the cookie value (not the cookie key/name).
+        """
         return self.authenticated_cookie
 
     def create_new_one_time_pwd(self):
-        # TODO docstring
-        """Creates a new one-time password and sets how many tries are left."""
+        """
+        Creates a new one-time password and sets how many tries are left.
+
+        Returns:
+            str: The one-time password (e.g. to be displayed to the user over a secure channel (e.g. loopback)).
+        """
         self.one_time_pwd = util.generate_one_time_pwd()
         self.one_time_pwd_tries_left = self.ONE_TIME_PWD_TRIES
         return self.one_time_pwd
 
     def check_one_time_pwd(self, user_supplied_pwd):
-        # TODO docstring
-        x = """Checks whether the supplied one-time password is correct, only if tries are left.
-            Password is disabled after 1st successful use.
+        """
+        Checks whether the supplied one-time password is correct, only if tries are left.
+        Password is disabled after 1st successful use.
+
+        Args:
+            user_supplied_pwd (): The potentially wrong or malicious password the user provided. Decreases the number of tries left.
+
+        Returns:
+            bool: Whether the user-supplied password is correct and allowed.
+
         """
         self.one_time_pwd_tries_left -= 1
         if self.one_time_pwd_tries_left > 0:
@@ -39,12 +62,19 @@ class WoolnoteUIAuth():
         return False
 
     def check_permanent_pwd(self, user_supplied_pwd):
-        # TODO docstring
+        """
+        Checks whether the supplied password is correct.
+
+        Args:
+            user_supplied_pwd (str): The potentially wrong or malicious password the user provided.
+
+        Returns:
+            bool: Whether the user-supplied password is correct and allowed.
+        """
         ret = util.safe_string_compare(user_supplied_pwd, config.LOGIN_PASSWORD)
         if ret is True:  # explicitly checking for boolean True
             return True
         return False
 
 
-        # TODO: method for checking the permanent password
         # TODO: save the permanent password as a hash?

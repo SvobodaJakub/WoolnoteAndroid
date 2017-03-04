@@ -1,5 +1,60 @@
 <html>
+<meta charset=utf-8>
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0"/>
 <body>
-TODO create README.txt and copy it here
+<p>Woolnote for Android is in development and has sharp corners.</p>
+
+<p>Read the latest README at <a href="https://github.com/SvobodaJakub/WoolnoteAndroid">https://github.com/SvobodaJakub/WoolnoteAndroid</a></p>
+<p>Woolnote - a note and task management app written in Python</p>
+<h2>README for woolnote for Android</h2>
+<h3>Installation</h3>
+<p>Upon installation, woolnote creates the /sdcard/woolnote directory into which data and backups are saved. If the device doesn't have the /sdcard directory, woolnote cannot run.</p>
+<p>Upon installation, go into Settings, Import &amp; export and set a directory into which a "woolnote.zip" file will be saved on export and read from on import. You can set this mechanism to easily back up your notes to Dropbox or a similar storage and to sync notes between multiple devices. If you don't want to deal with that now and woolnote refuses to run because the directory doesn't exist (which will happen only if you actually go to settings and leave it unconfigured), just select the /sdcard/woolnote directory and woolnote.zip imports&amp;exports will happen there.</p>
+<h3>Settings</h3>
+<p>Login password - A static password you can save into the bookmarks on your computer, provided you trust such bookmark storage.</p>
+<p>Import&amp;export - You can specify the directory used to read/write the woolnote.zip file used by the "Import" and "Export" functions of woolnote. The directory is set to /sdcard/woolnote upon installation but is changed to an example Dropbox path once the settings screen is opened. If you do not wish to use the functionality, pick the /sdcard/woolnote path. However, I strongly recommend setting it up with Dropbox (or some other service which listens to file changes and uploads them automatically) because it allows you to back up your data on demand. I have a habit of exporting the data every day, knowing that if I lose my phone, I won't lose my data.</p>
+<p>Ordinarily, you probably want to use import &amp; export only for backups. Woolnote starts a server reachable on the local network, so you can access the data from your computer on the same network and have no hassle with synchronization.</p>
+<p>The Android Dropbox app listens to file changes for files marked as "Available Offline" and automatically uploads the changes, which means exports from Woolnote can be automatically uploaded to Dropbox. If the file changes on Dropbox, you have to manually open the Dropbox app go to menu, Offline, and let it sync to download the changes so that they can be imported by Woolnote. If you are a software developer and want to help me with having a better storage integration, you are welcome.</p>
+<p>How to set up Dropbox for automatic synchronization</p>
+<ol>
+<li>Export the woolnote.zip file from woolnote and manually import it into Dropbox using the Dropbox app to the place inside Dropbox where you wish to store it.</li>
+<li>In the Dropbox app, long-click the woolnote.zip file and enable Offline. This downloads the file somewhere to /storage/emulated/0/Android/data/com.dropbox.android/files/u20358332(use your Dropbox account number)/scratch/. In woolnote, select the directory where woolnote.zip is stored by Dropbox.</li>
+<li>Export from woolnote - this one is easy. Make sure the Dropbox app is running in the background. In Woolnote, select Export and export the data. Dropbox detects that the file changes and uploads it, displaying a notification.</li>
+<li>Import to woolnote - this one is more complicated. Unfortunately, unlike on desktop, Dropbox doesn't automatically sync files from cloud to the device, you have to trigger the sync manually. Open the Dropbox app, display the offline files from the sidebar, let it sync. Then open woolnote and use the Import type which you want.</li>
+</ol>
+<h3>Backups</h3>
+<p>Woolnote creates local backup copies of the task database on these occasions:</p>
+<ul>
+<li>Starting up the woolnote server.</li>
+<li>Export</li>
+<li>Import</li>
+</ul>
+<p>Sometimes, you might need to recover old data. You might find them in the backups directory (/sdcard/woolnote/backups). The primary task database is in /sdcard/woolnote/task_store.dat. To recover data, first make a backup of task_store.dat so that you can revert in case you do something wrong. Quit woolnote. Manually fix the database file (make sure not to break the file format structure). You might find the tools grep, meld, windiff useful.</p>
+<p>The backups directory is growing, you might want to clean it from time to time. The most comfortable way is to either delete the whole backups directory and create it again, or to selectively delete files from desktop (through cable or SSH).</p>
+<h3>Connecting to the woolnote server</h3>
+<p>Woolnote for Android is in fact a standard Android Java application for the user interface (menu, settings, launcher icon), containing a WebView for displaying the interface of woolnote, and containing the Python interpreter and the woolnote note&amp;task management app written in Python, which is a basic web application, displaying its user interface over HTTP or HTTPS.
+Every time Woolnote for Android runs, the woolnote server runs as well. You can connect to the port 8088 over HTTP or to the port 8089 over HTTPS. You can authenticate using a login password or using a OTP (one-time password).</p>
+<h4>HTTP</h4>
+<p>Don't use HTTP on networks you don't trust. Anyone with sufficient access to the network can see all your transmitted data including the login password or authentication cookies and can log into woolnote as you and access or modify anything in there.</p>
+<h4>HTTPS</h4>
+<p>Because Woolnote cannot use a valid SSL/TLS certificate, it has to auto-generate a self-signed untrusted certificate. To check the security of the connection, you generally have to do the following on untrusted networks:</p>
+<ol>
+<li>Connect to Woolnote from your browser but don't enter valid login credentials. (woolnote menu, Display IP address tells you how)</li>
+<li>Dismiss the security alert in the browser.</li>
+<li>View the HTTPS certificate in the browser and view the SHA256 fingerprint.</li>
+<li>On the mobile phone, go to the Woolnote main page and see the SHA256 fingerprint on top.</li>
+<li>If the fingerprints are different, someone is attacking you. If the fingerprints are the same, you can now use valid login credentials to log in from the browser.</li>
+<li>To log out from the browser (e.g. in case you don't trust it anymore because someone else has access to the computer), then use the menu items Quit or Restart server in Woolnote on your mobile phone.</li>
+</ol>
+<p>If you are a software developer and want to make the secure network communication better and more user-friendly, you are welcome.</p>
+<h4>Login password</h4>
+<p>A static password you can save into the bookmarks on your computer, provided you trust such bookmark storage.</p>
+<h4>OTP</h4>
+<p>One-time password. Once an OTP is generated, it is valid for 5 unsuccessful tries and then it is invalidated. It is also invalidated after a successful use so that if you enter it while someone sees you, they cannot reuse it unless they can type it and hit enter faster than you.</p>
+<h2>README for woolnote (both the pure Python version and the Android version)</h2>
+<h3>Easy to type lists</h3>
+<p>Lists are text lines beginning with "-" or "+" or "*"or "**" or "***" followed by a space and text. The following lines automatically gain the same prefix on save (until an empty line or until a different list is defined). This allows you to easily type a long list on the phone keyboard because you don't have to search for the special characters on each line - just on the first line. If you don't like the feature, set the note's format to plaintext - this is useful when you insert arbitrary copy&amp;pasted things like emails or code.
+More information about formatting is directly inside woolnote in the "_woolnote_config" note.</p>
+ 
 </body>
 </html>
