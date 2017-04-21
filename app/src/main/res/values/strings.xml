@@ -10,7 +10,6 @@
     <string name="action_readme">README</string>
     <string name="action_gen_cert">New https:// cert</string>
     <string name="action_display_ip_address">Display IP address</string>
-    <string name="main_url_without_protocol">127.0.0.1:8088/woolnote?woolauth=sleepysheep</string>
     <string name="main_url_without_protocol_without_passwd">127.0.0.1:8088/woolnote?woolauth=</string>
     <string name="main_url_only_host_without_protocol">127.0.0.1</string>
     <string name="title_activity_settings">Settings</string>
