@@ -14,6 +14,8 @@ Upon installation, woolnote creates the /sdcard/woolnote directory into which da
 
 Upon installation, go into Settings, Import & export and set a directory into which a "woolnote.zip" file will be saved on export and read from on import. You can set this mechanism to easily back up your notes to Dropbox or a similar storage and to sync notes between multiple devices. If you don't want to deal with that now and woolnote refuses to run because the directory doesn't exist (which will happen only if you actually go to settings and leave it unconfigured), just select the /sdcard/woolnote directory and woolnote.zip imports&exports will happen there.
 
+Prebuilt apk can be found in https://github.com/SvobodaJakub/WoolnoteAndroid/tree/apk/app.
+
 ### Settings
 Login password - A static password you can save into the bookmarks on your computer, provided you trust such bookmark storage.
 
