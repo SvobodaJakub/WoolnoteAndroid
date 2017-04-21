@@ -5,6 +5,8 @@ Woolnote - a note and task management app written in Python - https://github.com
 
 Python and OpenSSL built statically for ARM Linux / Android - https://github.com/SvobodaJakub/static_multiarch_build_python_openssl
 
+![screenshot](https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/screenshot_first.png)
+
 ## README for woolnote for Android
 
 ### Installation
@@ -110,3 +112,26 @@ A.k.a. questions nobody asks that I pulled out of my colored hat :)
     * I don't use that functionality that often. A central part of my task list is a week-by-week timeline-like task list where most of the short-term stuff ends up. Most of the long-term reminders end up on my calendar and in my tickler note. The reminder/deadline functionality is therefore for the oddball notes that are perhaps temporary projects (like home renovation) which can't be put easily on one line into a tickler or into the calendar but are a topic of notes and tasks in one woolnote note and then I remember I need this note to pop up on me on a certain date. You can see a few examples of that in the demo file tasks.dat.
 * Why does it look so awful?
     * Some people feel uneasy looking at unaligned graphical elements and whatnot. If you are one of them, I know the interface looks insane to you. I don't care about such things and I don't have the time nor the skills necessary to fix it. If you want to make the UI better, you are welcome.
+
+
+# Screenshots
+
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777016.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777146.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777161.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777172.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777184.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777255.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777381.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777391.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777395.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777400.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777585.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777627.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777693.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777812.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492777889.png" width="300">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492778230.png">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492778277.png">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492778308.png">
+<img src="https://github.com/SvobodaJakub/WoolnoteAndroid/raw/master/screenshots/Screenshot_1492778368.png">
