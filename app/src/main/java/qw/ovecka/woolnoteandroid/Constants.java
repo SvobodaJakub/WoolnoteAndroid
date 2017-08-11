@@ -5,5 +5,5 @@ package qw.ovecka.woolnoteandroid;
  */
 
 public final class Constants {
-    public static final Boolean DebugLogcat = true;
+    public static final Boolean DebugLogcat = false;
 }

@@ -31,6 +31,7 @@ class StateSingleton {
     private String prefNameKillServer = null; // getString(R.string.pref_name_kill_server_activity_destroy);
     private String prefNameImportExportDir = null; // getString(R.string.pref_name_import_export_dropbox_sync_dir);
     private String prefDefaultValueImportExportDir = null; // getString(R.string.pref_name_import_export_dropbox_sync_dir);
+    private Boolean initialized = false;
 
 
     // private prevents instantiation
@@ -609,6 +610,14 @@ class StateSingleton {
 
     protected String GetLoginPassword() {
         return loginPassword;
+    }
+
+    protected void SetInitialized() {
+        initialized = true;
+    }
+
+    protected Boolean GetInitialized() {
+        return initialized;
     }
 
 }

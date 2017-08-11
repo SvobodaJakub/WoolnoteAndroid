@@ -18,6 +18,26 @@ public class MainActivity extends AppCompatActivity {
     // TODO: ensure that all files have appropriate permissions (other apps can't access them)
     // TODO: ? implement up and back buttons correctly - https://developer.android.com/design/patterns/navigation.html#up-vs-back
 
+    // Either returns the existing initialized StateSingleton or creates and initializes it and returns it
+    protected StateSingleton getInitializedStateSingleton() {
+
+        StateSingleton stateSingleton = StateSingleton.getInstance();
+        if (stateSingleton.GetInitialized()) {
+            return stateSingleton;
+        } else {
+            stateSingleton.SetDataDirPath(getApplicationContext().getApplicationInfo().dataDir);
+            stateSingleton.SetFilesDirPath(getApplicationContext().getFilesDir().getAbsolutePath());
+            stateSingleton.SetAssetManager(getAssets());
+            stateSingleton.SetSharedPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+            stateSingleton.SetPrefNameDefaultLoginPassword(getString(R.string.pref_name_login_password));
+            stateSingleton.SetPrefNameKillServer(getString(R.string.pref_name_kill_server_activity_destroy));
+            stateSingleton.SetPrefNameImportExportDir(getString(R.string.pref_name_import_export_dropbox_sync_dir));
+            stateSingleton.SetPrefDefaultValueImportExportDir(getString(R.string.pref_import_export_dropbox_sync_dir_default_for_first_use));
+            stateSingleton.SetInitialized();
+            return stateSingleton;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,15 +54,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
-        StateSingleton stateSingleton = StateSingleton.getInstance();
-        stateSingleton.SetDataDirPath(getApplicationContext().getApplicationInfo().dataDir);
-        stateSingleton.SetFilesDirPath(getApplicationContext().getFilesDir().getAbsolutePath());
-        stateSingleton.SetAssetManager(getAssets());
-        stateSingleton.SetSharedPreferences(PreferenceManager.getDefaultSharedPreferences(this));
-        stateSingleton.SetPrefNameDefaultLoginPassword(getString(R.string.pref_name_login_password));
-        stateSingleton.SetPrefNameKillServer(getString(R.string.pref_name_kill_server_activity_destroy));
-        stateSingleton.SetPrefNameImportExportDir(getString(R.string.pref_name_import_export_dropbox_sync_dir));
-        stateSingleton.SetPrefDefaultValueImportExportDir(getString(R.string.pref_import_export_dropbox_sync_dir_default_for_first_use));
+        StateSingleton stateSingleton = getInitializedStateSingleton();
 
         stateSingleton.StartupRunOnce();
 
@@ -75,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        StateSingleton stateSingleton = StateSingleton.getInstance();
+        StateSingleton stateSingleton = getInitializedStateSingleton();
         WebView myWebView = (WebView) findViewById(R.id.webview);
 
         Log.d("WOOLNOTE", "menu item clicked");
@@ -153,11 +165,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        StateSingleton stateSingleton = StateSingleton.getInstance();
-        if (stateSingleton.GetPrefKillServer()) {
-            stateSingleton.StopProcess();
-            super.onDestroy();
+        try {
+            StateSingleton stateSingleton = getInitializedStateSingleton();
+            if (stateSingleton.GetPrefKillServer()) {
+                stateSingleton.StopProcess();
+            }
+        } catch (Throwable e) {
         }
+        super.onDestroy();
     }
 
 }
