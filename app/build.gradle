@@ -3,11 +3,26 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
+
+
+    // https://stackoverflow.com/questions/21405457/autoincrement-versioncode-with-gradle-extra-properties
+    def myVersionCode = 1
+    def versionPropsFile = file('version.properties')
+    def Properties versionProps = new Properties()
+
+    if(versionPropsFile.exists()) {
+        versionProps.load(new FileInputStream(versionPropsFile))
+        myVersionCode = versionProps['VERSION_CODE'].toInteger() + 1
+    }
+
+    versionProps['VERSION_CODE']=myVersionCode.toString()
+    versionProps.store(versionPropsFile.newWriter(), null)
+
     defaultConfig {
         applicationId "qw.ovecka.woolnoteandroid"
         minSdkVersion 15
         targetSdkVersion 15
-        versionCode 1
+        versionCode myVersionCode
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
