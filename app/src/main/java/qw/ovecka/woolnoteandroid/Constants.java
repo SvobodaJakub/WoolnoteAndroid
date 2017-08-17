@@ -6,4 +6,5 @@ package qw.ovecka.woolnoteandroid;
 
 public final class Constants {
     public static final Boolean DebugLogcat = false;
+    public static final String ActionStartWoolnoteServerServiceForeground = "qw.ovecka.woolnoteandroid.ActionStartWoolnoteServerServiceForeground";
 }

@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
         stateSingleton.StartupRunOnce();
 
         stateSingleton.StartProcess();
+        Intent startIntent = new Intent(MainActivity.this, WoolnoteServerService.class);
+        startIntent.setAction(Constants.ActionStartWoolnoteServerServiceForeground);
+        startService(startIntent);
 
         //TODO: spin a message until python is up and running
         //TODO: how to detect woolnote is up?
@@ -115,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.action_quit) {
             //stop the python server
             stateSingleton.StopProcess();
+            Intent stopIntent = new Intent(MainActivity.this, WoolnoteServerService.class);
+            stopService(stopIntent);
 
             // https://stackoverflow.com/questions/17719634/how-to-exit-an-android-app-using-code
             moveTaskToBack(true);
@@ -169,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
             StateSingleton stateSingleton = getInitializedStateSingleton();
             if (stateSingleton.GetPrefKillServer()) {
                 stateSingleton.StopProcess();
+                Intent stopIntent = new Intent(MainActivity.this, WoolnoteServerService.class);
+                stopService(stopIntent);
             }
         } catch (Throwable e) {
         }

@@ -76,7 +76,7 @@ class StateSingleton {
     // runs in the current thread and blocks
     // TODO even though I consume stdin/stderr, Thread.interrupt() doesn't work - despite this link telling otherwise? - https://stackoverflow.com/questions/18113941/thread-launched-running-processes-wont-destroy-java
     // - Most probably, it is this problem and I can't fix it - https://stackoverflow.com/questions/21279270/android-can-native-code-get-broadcast-intent-from-android-system/21337119#answer-21337119
-    protected String processExec(String shellCommand, Boolean logEnabled, Boolean throwAwayInOut) {
+    private String processExec(String shellCommand, Boolean logEnabled, Boolean throwAwayInOut) {
 
         int sleepInterval = 100; // 100 ms
         int numOfSleeps = 0;
@@ -185,7 +185,7 @@ class StateSingleton {
 
     // runs in the current thread and blocks
     //TODO doesn't work for some reason
-    protected void processExec(String[] cmdArray, String[] envp, File dir, Boolean logEnabled, Boolean throwAwayInOut) {
+    private void processExec(String[] cmdArray, String[] envp, File dir, Boolean logEnabled, Boolean throwAwayInOut) {
 
         int sleepInterval = 100; // 100 ms
         int numOfSleeps = 0;
@@ -381,6 +381,10 @@ class StateSingleton {
 
     protected void StartProcess() {
         synchronized (lock) {
+            if (!this.startupOnceHappened) {
+                return;
+            }
+
             if (this.nativeProcessThread != null) {
                 return;
             }
@@ -465,18 +469,26 @@ class StateSingleton {
         // android N - toolbox grep - no such tool
         // using whatever grep is in PATH
         // using toolbox ps so that the output format is well known and no other ps program is used (still might break in future android versions..)
-        processExec("toolbox ps | grep libpython35woolnote.so | grep -v PID | while read l ; do arr=($l); echo kill -9 ${arr[1]}; done", Constants.DebugLogcat, false);
+
+        // for debugging purposes, logs the PID if logcat enabled
+        processExec("toolbox ps | grep libpython35woolnote.so | grep -v PID | while read l ; do arr=($l); echo woolnote pid ${arr[1]}; done", Constants.DebugLogcat, false);
+        // actual kill
+        processExec("toolbox ps | grep libpython35woolnote.so | grep -v PID | while read l ; do arr=($l); kill ${arr[1]}; done", Constants.DebugLogcat, false);
         processExec("toolbox ps | grep libpython35woolnote.so | grep -v PID | while read l ; do arr=($l); kill -9 ${arr[1]}; done", Constants.DebugLogcat, false);
 
     }
 
     private Boolean nativeGetServerRunning() {
-        String stdout = processExec("toolbox ps | grep libpython35woolnote.so | grep -v PID | while read l ; do arr=($l); echo kill -9 ${arr[1]}; done", Constants.DebugLogcat, false).trim();
+        String stdout = processExec("toolbox ps | grep libpython35woolnote.so | grep -v PID | while read l ; do arr=($l); echo woolnote pid ${arr[1]}; done", Constants.DebugLogcat, false).trim();
         return (stdout.length() > 0);
     }
 
     protected void StopProcess() {
         synchronized (lock) {
+            if (!this.startupOnceHappened) {
+                return;
+            }
+
             if (this.nativeProcessThread == null) {
                 return;
             }
@@ -620,4 +632,13 @@ class StateSingleton {
         return initialized;
     }
 
+    protected Boolean IsProbablyRunning() {
+        synchronized (lock) {
+            if (this.initialized && this.startupOnceHappened && (this.nativeProcessThread != null)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
 }

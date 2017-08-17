@@ -32,6 +32,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="qw.ovecka.woolnoteandroid.MainActivity" />
         </activity>
+
+        <service
+            android:name=".WoolnoteServerService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

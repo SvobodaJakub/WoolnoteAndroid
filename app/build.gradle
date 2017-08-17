@@ -20,8 +20,8 @@ android {
 
     defaultConfig {
         applicationId "qw.ovecka.woolnoteandroid"
-        minSdkVersion 15
-        targetSdkVersion 15
+        minSdkVersion 16
+        targetSdkVersion 16
         versionCode myVersionCode
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
