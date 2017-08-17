@@ -38,7 +38,7 @@ public class WoolnoteServerService extends Service {
                 Notification notification = new Notification.Builder(getApplicationContext())
                         .setContentTitle(getString(R.string.app_name))
                         //.setContentText(contentText)
-                        //.setSmallIcon(R.drawable.ic_notification)
+                        .setSmallIcon(R.drawable.ic_notification)
                         .setWhen(System.currentTimeMillis())
                         //.setContentIntent(contentIntent)
                         .build();
