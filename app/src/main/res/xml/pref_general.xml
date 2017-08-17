@@ -19,7 +19,7 @@
         android:title="@string/pref_title_display_name" />-->
 
     <SwitchPreference
-        android:defaultValue="true"
+        android:defaultValue="false"
         android:key="@string/pref_name_kill_server_activity_destroy"
         android:summary="@string/pref_description_kill_server_activity_destroy"
         android:title="@string/pref_title_kill_server_activity_destroy" />

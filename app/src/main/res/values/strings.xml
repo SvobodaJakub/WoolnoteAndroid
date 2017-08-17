@@ -24,7 +24,7 @@
 
     <string name="pref_name_kill_server_activity_destroy">pref_kill_server_activity_destroy</string>
     <string name="pref_title_kill_server_activity_destroy">Kill server on activity destroy</string>
-    <string name="pref_description_kill_server_activity_destroy">Enabled (default) == the Woolnote server is shut down when activity is destroyed (closed by user or by Android). Disabled == left running whenever possible. Some devices are buggy and the option has no effect.</string>
+    <string name="pref_description_kill_server_activity_destroy">Enabled == the Woolnote server is shut down when activity is destroyed (closed by user or by Android). Disabled (default) == left running whenever possible. Some devices are buggy and the option has no effect.</string>
 
     <string name="pref_header_import_export">Import &amp; export</string>
 
